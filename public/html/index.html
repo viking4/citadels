@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Citadels</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="http://localhost:8080/bower_components/requirejs/require.js"></script>
+  <script type="text/javascript" src="http://localhost:8080/js/config.js"></script>
+  <script type="text/javascript" src="http://localhost:8080/js/boot.js"></script>
+  <link type="text/css" href="http://localhost:8080/bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+</head>
+<body ng-controller="mainCtrl">
+Local Player ID: {{localPlayer.id}} <br>
+Remote Player Client IDs
+<ul ng-repeat="player in remotePlayers">
+  <li>{{player.id}}</li>
+</ul>
+
+</body>
+</html>

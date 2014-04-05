@@ -1,0 +1,8 @@
+{
+  "name": "citadels",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "socket.io": "~0.9.16"
+  }
+}
