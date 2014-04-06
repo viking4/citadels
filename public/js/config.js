@@ -1,6 +1,6 @@
 require.config({
   baseUrl: "http://localhost:8080/js",
-  packages: ["main"],
+  packages: ["main", "game"],
   shim: {
     "angular": {
       exports: "angular"
@@ -14,8 +14,8 @@ require.config({
   },
   paths: {
     "angular": "../bower_components/angular/angular",
-    "socket.io": "../node_modules/socket.io/node_modules/socket.io-client/dist/socket.io",
     "btford.socket-io": "../bower_components/angular-socket-io/socket",
+    "socket.io": "../node_modules/socket.io/node_modules/socket.io-client/dist/socket.io",
     "ui-router": "../bower_components/angular-ui-router/release/angular-ui-router"
   },
   modules: [

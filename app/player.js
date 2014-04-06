@@ -2,7 +2,8 @@
  ** GAME PLAYER CLASS
  **************************************************/
 var Player = {
-  id: 0
+  ids: [],
+  nickname: ""
 };
 
 // Export the Player class so you can use it in

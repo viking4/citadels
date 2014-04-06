@@ -1,59 +1,51 @@
-define(["angular", "utils/services"], function (angular) {
+define(["angular"], function (angular) {
   "use strict";
 
-  return angular.module("main.controllers", ["utils.services"])
-    .controller("MainCtrl", ["$scope", "socket", function ($scope, socket) {
-      $scope.remotePlayers = [];
-      $scope.localPlayer = {
-        id: 0
-      };
-      socket.on("connect", onSocketConnected);
-      socket.on("on client", function (data) {
-        $scope.localPlayer.id = data.id
-      });
-      socket.on("disconnect", onSocketDisconnect);
-      socket.on("new player", onNewPlayer);
-      socket.on("remove player", onRemovePlayer);
+  return angular.module("main.controllers", [])
+    .controller("MainCtrl", ["$scope",
+      function ($scope) {
+        var socketData = $scope.socketData;
+        var socket = $scope.socket;
 
-      function onSocketConnected() {
-        console.log("Connected to socket server");
-        socket.emit("new player", {});
-      }
-
-      function onSocketDisconnect() {
-        console.log("Disconnected from socket server");
-      }
-
-      function onNewPlayer(data) {
-        console.log("New player connected: "+data.id);
-        var newPlayer = {
-          id: data.id,
-          characterHand: [],
-          districtHand: [],
-          gold: 0
+        $scope.createPlayer = function () {
+          if ($scope.socketData.socketConnected && $scope.nickname) {
+            if (socketData.remotePlayers[$scope.nickname]) {
+              $scope.invalidNickname = true;
+            } else {
+              $scope.socket.emit("new player", {nickname: $scope.nickname});
+              $scope.socketData.localPlayer.nickname = $scope.nickname;
+            }
+          }
         };
-        $scope.remotePlayers.push(newPlayer);
-      }
 
-      function onRemovePlayer(data) {
-        var removePlayer = playerById(data.id);
+        $scope.createRoom = function () {
+          if (socketData.remoteRooms[$scope.roomName]) {
+            $scope.invalidRoomName = true;
+          } else {
+            socket.emit("join room", {roomName: $scope.roomName});
+            $scope.socketData.remoteRooms[$scope.roomName] = {
+              roomName: $scope.roomName,
+              players: {}
+            };
+            $scope.socketData.remoteRooms[$scope.roomName].players[socketData.localPlayer.nickname] = {
+              nickname: socketData.localPlayer.nickname
+            };
+            $scope.$state.go("lobby", {roomName: $scope.roomName});
+          }
+        };
 
-        if (!removePlayer) {
-          console.log("Player not found: "+data.id);
-          return;
-        }
+        $scope.joinRoom = function (roomName) {
+          $scope.socket.emit("join room", {roomName: roomName});
+          $scope.socketData.remoteRooms[roomName].players[socketData.localPlayer.nickname] = {
+            nickname: socketData.localPlayer.nickname
+          };
+          $scope.$state.go("lobby", {roomName: roomName});
+        };
 
-        $scope.remotePlayers.splice($scope.remotePlayers.indexOf(removePlayer), 1);
-      }
-
-      function playerById(id) {
-        var i;
-        for (i = 0; i < $scope.remotePlayers.length; i++) {
-          if ($scope.remotePlayers[i].id == id)
-            return $scope.remotePlayers[i];
-        }
-
-        return false;
-      }
+        $scope.logout = function () {
+          console.log("logging out: " + socketData.localPlayer.nickname);
+          socket.emit("remove player", {nickname: socketData.localPlayer.nickname});
+          $scope.socketData.localPlayer.nickname = "";
+        };
     }]);
 });

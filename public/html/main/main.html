@@ -1,5 +1,22 @@
-Local Player ID: {{localPlayer.id}} <br>
-Remote Player Client IDs
-<ul ng-repeat="player in remotePlayers">
-  <li>{{player.id}}</li>
-</ul>
+<div ng-hide="socketData.localPlayer.nickname != ''">
+  <input type="text" placeholder="Player name" ng-model="nickname">
+  <button ng-click="createPlayer()" ng-disabled="!socketData.socketConnected">Create Player</button>
+  <span ng-show="invalidNickname">Nickname existed!</span><br>
+  <br>
+</div>
+<div ng-show="socketData.localPlayer.nickname != ''">
+  Welcome, {{socketData.localPlayer.nickname}}! <br>
+
+  Player List <span ng-hide="socketData.remotePlayers.length > 0">: None <br></span>
+  <ul ng-repeat="player in socketData.remotePlayers">
+    <li>{{player.nickname}}</li>
+  </ul>
+  <br><input type="text" placeholder="Room Name" ng-model="roomName"><button ng-click="createRoom()">Create</button>
+  <span ng-show="invalidRoomName">Room existed!</span><br>
+
+  Room List  <span ng-hide="socketData.remoteRooms.length > 0"> : None <br></span>
+  <ul ng-repeat="room in socketData.remoteRooms">
+    <li>{{room.roomName}}<button ng-click="joinRoom(room.roomName)">Join</button></li>
+  </ul>
+  <br> <button ng-click="logout()">log out</button>
+</div>

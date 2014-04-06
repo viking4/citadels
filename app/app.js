@@ -14,7 +14,7 @@ Object.defineProperty(Object.prototype, "spawn", {value: function (props) {
  **************************************************/
 var util = require("util"),	// Utility resources (logging, object inspection, etc)
   io = require("../public/node_modules/socket.io/lib/socket.io"),	// Socket.IO
-  Player = require("./player").Player;	// Player class
+  Player = require("./player").Player;
 
 
 /**************************************************
@@ -29,10 +29,9 @@ var socket,	// Socket controller
  **************************************************/
 function init() {
 // Create an empty array to store players
-  players = [];
-
-// Set up Socket.IO to listen on port 8000
-  socket = io.listen(8000);
+  players = {};
+// Set up Socket.IO to listen on port 7000
+  socket = io.listen(7000);
 
 // Configure Socket.IO
   socket.configure(function() {
@@ -58,56 +57,85 @@ var setEventHandlers = function() {
 
 // New socket connection
 function onSocketConnection(client) {
-  util.log("New player has connected: "+client.id);
+  util.log("New client has connected: "+client.id);
 
 // Listen for client disconnected
   client.on("disconnect", onClientDisconnect);
 
 // Listen for new player message
+  client.on("new client", onNewClient);
   client.on("new player", onNewPlayer);
-
+  client.on("remove player", onRemovePlayer);
+  client.on("join room", onJoinRoom);
+  client.on("leave room", onLeaveRoom);
 }
 
 // Socket client has disconnected
 function onClientDisconnect() {
-  util.log("Player has disconnected: "+this.id);
+  util.log("Client has disconnected: "+this.id);
 
-  var removePlayer = playerById(this.id);
-
-// Player not found
-  if (!removePlayer) {
+  var player = playerById(this.id);
+  if (!player) {
     util.log("Player not found: "+this.id);
     return;
   }
 
-// Remove player from players array
-  players.splice(players.indexOf(removePlayer), 1);
-
-// Broadcast removed player to connected socket clients
-  this.broadcast.emit("remove player", {id: this.id});
+  util.log("Player has been removed: "+player.nickname);
+  this.broadcast.emit("remove player", {nickname: player.nickname});
+  delete players[player.nickname];
 }
-
+function onNewClient() {
+  var i, playerKeys = Object.keys(players);
+  for (i = 0; i < playerKeys.length; i++) {
+    this.emit("new player", players[playerKeys[i]]);
+  }
+}
 // New player has joined
 function onNewPlayer(data) {
+
 // Create a new player
   var newPlayer = Player.spawn();
   newPlayer.id = this.id;
-
-// Send client info back to the new player
-  this.emit("on client", {id: newPlayer.id});
+  newPlayer.nickname = data.nickname;
 
 // Broadcast new player to connected socket clients
-  this.broadcast.emit("new player", {id: newPlayer.id});
+  this.broadcast.emit("new player", newPlayer);
 
 // Send existing players to the new player
-  var i, existingPlayer;
-  for (i = 0; i < players.length; i++) {
-    existingPlayer = players[i];
-    this.emit("new player", {id: existingPlayer.id});
+  var roomKeys = Object.keys(socket.sockets.manager.rooms);
+  for (var i = 0, ii = roomKeys.length; i < ii; i++) {
+    if (roomKeys[i] != "") {
+      var roomName = roomKeys[i].substring(1);
+      this.emit("new room", {roomName: roomName});
+    }
   }
-
 // Add new player to the players array
-  players.push(newPlayer);
+  util.log("New player has been created: "+this.id);
+  players[newPlayer.nickname] = newPlayer;
+}
+
+function onRemovePlayer () {
+  var removePlayer = playerById(this.id);
+  util.log("A player has been removed: "+removePlayer.nickname);
+  this.broadcast.emit("remove player", {nickname: removePlayer.nickname});
+
+  delete players[removePlayer.nickname];
+}
+
+function onJoinRoom (data) {
+  this.join(data.roomName);
+  util.log("A player joins room: "+data.roomName);
+
+  var joinPlayer = playerById(this.id);
+  this.broadcast.emit("join room", {roomName: data.roomName, player: joinPlayer});
+}
+
+function onLeaveRoom (data) {
+  var leavePlayer = playerById(this.id);
+  this.leave(data.roomName);
+  util.log("A player leaves room: "+leavePlayer.roomName);
+
+  this.broadcast.emit("leave room", {roomName: data.roomName, player: leavePlayer});
 }
 
 /**************************************************
@@ -115,15 +143,14 @@ function onNewPlayer(data) {
  **************************************************/
 // Find player by ID
 function playerById(id) {
-  var i;
-  for (i = 0; i < players.length; i++) {
-    if (players[i].id == id)
-      return players[i];
+  var keys = Object.keys(players);
+  for (var i = 0, ii = keys.length; i < ii; i++) {
+    var player = players[keys[i]];
+    if (player.id == id)
+      return player;
   }
-
   return false;
 }
-
 
 /**************************************************
  ** RUN THE GAME

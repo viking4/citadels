@@ -1,0 +1,6 @@
+Joined Players
+<ul ng-repeat="player in socketData.remoteRooms[$stateParams.roomName].players">
+  <li>{{player.nickname}} <span ng-show="player.nickname == socketData.localPlayer.nickname">(Me)</span></li>
+</ul>
+<br>
+<button ng-click="leave()">Leave</button>

@@ -12,8 +12,7 @@
   ],
   "dependencies": {
     "angular-socket-io": "~0.4.1",
-    "requirejs": "~2.1.11",
-    "angular-ui-router": "~0.2.10",
-    "bootstrap": "~3.1.1"
+    "bootstrap": "~3.1.1",
+    "requirejs": "~2.1.11"
   }
 }
