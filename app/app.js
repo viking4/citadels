@@ -119,10 +119,10 @@ function playerById(id) {
   for (i = 0; i < players.length; i++) {
     if (players[i].id == id)
       return players[i];
-  };
+  }
 
   return false;
-};
+}
 
 
 /**************************************************

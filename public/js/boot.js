@@ -1,5 +1,5 @@
-require(['angular', 'main'], function (angular) {
-  'use strict';
+require(["angular", "main"], function (angular) {
+  "use strict";
 
-  angular.bootstrap(document, ['main']);
+  angular.bootstrap(document, ["main"]);
 });
