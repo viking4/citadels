@@ -1,11 +1,10 @@
 /**************************************************
- ** GAME PLAYER CLASS
+ ** GAME CLASS
  **************************************************/
-var Player = {
+var Game = {
   id: null,
-  characterHand: [],
-  districtHand: [],
-  districtAsset: []
+  hostName: "",
+  players: []
 };
 
 // Export the Player class so you can use it in
