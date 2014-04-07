@@ -1,5 +1,6 @@
-Local Player ID: {{localPlayer.id}} <br>
-Remote Player Client IDs
-<ul ng-repeat="player in remotePlayers">
-  <li>{{player.id}}</li>
+
+<input type="text" placeholder="Room Name" ng-model="roomName"><button ng-click="create()">Create</button><br>
+Room List
+<ul ng-repeat="game in remoteGames">
+  <li>{{game.name}}<button ng-click="join(game.id)">Join</button></li>
 </ul>

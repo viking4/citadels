@@ -1,0 +1,8 @@
+Host ID: {{player.id}} <br>
+Joined Players
+<ul ng-repeat="player in roomPlayers">
+  <li>{{player.id}}</li>
+</ul>
+<br>
+<button ng-click="start()">Start</button>
+<button ng-click="leave()">Leave</button>
