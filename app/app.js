@@ -1,27 +1,17 @@
-// Object.spawn() for classical inheritance
-Object.defineProperty(Object.prototype, "spawn", {value: function (props) {
-  var defs = {}, key;
-  for (key in props) {
-    if (props.hasOwnProperty(key)) {
-      defs[key] = {value: props[key], enumerable: true};
-    }
-  }
-  return Object.create(this, defs);
-}});
-
 /**************************************************
  ** NODE.JS REQUIREMENTS
  **************************************************/
 var util = require("util"),	// Utility resources (logging, object inspection, etc)
   io = require("../public/node_modules/socket.io/lib/socket.io"),	// Socket.IO
-  Player = require("./player").Player;
-
+  Player = require("./player").Player,
+  Game = require("./game").Game;
 
 /**************************************************
  ** GAME VARIABLES
  **************************************************/
 var socket,	// Socket controller
-  players;	// Array of connected players
+  players,	// Array of connected players
+  games;
 
 
 /**************************************************
@@ -30,6 +20,7 @@ var socket,	// Socket controller
 function init() {
 // Create an empty array to store players
   players = {};
+  games = {};
 // Set up Socket.IO to listen on port 7000
   socket = io.listen(7000);
 
@@ -68,6 +59,7 @@ function onSocketConnection(client) {
   client.on("remove player", onRemovePlayer);
   client.on("join room", onJoinRoom);
   client.on("leave room", onLeaveRoom);
+  client.on("new game", onNewGame);
 }
 
 // Socket client has disconnected
@@ -94,9 +86,7 @@ function onNewClient() {
 function onNewPlayer(data) {
 
 // Create a new player
-  var newPlayer = Player.spawn();
-  newPlayer.id = this.id;
-  newPlayer.nickname = data.nickname;
+  var newPlayer = new Player(this.id, data.nickname);
 
 // Broadcast new player to connected socket clients
   this.broadcast.emit("new player", newPlayer);
@@ -137,7 +127,18 @@ function onLeaveRoom (data) {
 
   this.broadcast.emit("leave room", {roomName: data.roomName, player: leavePlayer});
 }
-
+function onNewGame (data) {
+  var roster = socket.sockets.clients(data.roomName);
+  var players = [];
+  for (var i = 0, ii = roster.length; i < ii; i++) {
+    var player = playerById(roster[i].id);
+    players.push(player);
+  }
+  var newGame = new Game(players);
+  this.emit("new game", newGame);
+  this.broadcast.emit("new game", newGame);
+  games[data.roomName] = newGame;
+}
 /**************************************************
  ** GAME HELPER FUNCTIONS
  **************************************************/

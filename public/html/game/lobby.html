@@ -3,4 +3,33 @@ Joined Players
   <li>{{player.nickname}} <span ng-show="player.nickname == socketData.localPlayer.nickname">(Me)</span></li>
 </ul>
 <br>
-<button ng-click="leave()">Leave</button>
+
+<div ng-hide="socketData.game">
+  <button ng-click="start()">Start</button>
+  <button ng-click="leave()">Leave</button>
+</div>
+
+<div ng-show="socketData.game">
+<table class="table" style="width: 300px">
+  <tr>
+    <th>Name </th>
+    <th>Type </th>
+    <th>Cost </th>
+  </tr>
+  <tr ng-repeat="card in socketData.game.districtDeck.deck" >
+    <td>{{card.name}} </td>
+    <td>{{card.type}} </td>
+    <td>{{card.cost}} </td>
+  </tr>
+</table>
+<br>
+<table class="table" style="width: 300px">
+  <tr>
+    <th>Character</th>
+    <th>Rank</th>
+  </tr>
+  <tr ng-repeat="card in socketData.game.characterDeck.deck">
+    <td>{{card.name}}</td>
+    <td>{{card.rank}}</td>
+</table>
+</div>

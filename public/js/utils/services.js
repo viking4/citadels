@@ -9,6 +9,8 @@ define(["angular", "btford.socket-io"], function (angular) {
     }])
     .factory("socketData", function () {
       var data = {
+        socketConnected: false,
+        game: null,
         reset:  function () {
           angular.extend(this, {
             localPlayer: {
@@ -17,8 +19,7 @@ define(["angular", "btford.socket-io"], function (angular) {
             remotePlayers: {},
             remoteRooms: {}
           });
-        },
-        socketConnected: false
+        }
       };
       data.reset();
       return data;
