@@ -27,18 +27,12 @@ define(["angular"], function (angular) {
               roomName: $scope.roomName,
               players: {}
             };
-            $scope.socketData.remoteRooms[$scope.roomName].players[socketData.localPlayer.nickname] = {
-              nickname: socketData.localPlayer.nickname
-            };
             $scope.$state.go("lobby", {roomName: $scope.roomName});
           }
         };
 
         $scope.joinRoom = function (roomName) {
           $scope.socket.emit("join room", {roomName: roomName});
-          $scope.socketData.remoteRooms[roomName].players[socketData.localPlayer.nickname] = {
-            nickname: socketData.localPlayer.nickname
-          };
           $scope.$state.go("lobby", {roomName: roomName});
         };
 

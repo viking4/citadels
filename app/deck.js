@@ -53,24 +53,36 @@ Deck.prototype.shuffle = function () {
   var deck = [];
   var len = this.deck.length;
   for (var i = len; i--;) {
-    var index = Math.floor(Math.random()*i);
+    var index = Math.floor(Math.random()*(i+1));
     var card = this.deck.splice(index, 1)[0];
     deck.push(card);
   }
   this.deck = deck;
 };
 
+Deck.prototype.draw = function (n) {
+  var cards = [];
+  cards.push(this.deck.pop());
+  if (n) {
+    for (var i = 1; i < n; i++) {
+      cards.push(this.deck.pop());
+    }
+  }
+  return cards;
+};
+
 function DistrictDeck() {
   Deck.call(this);
-  this.deck = districtDeckArray;
+  this.deck = Object.create(districtDeckArray);
 }
 
 DistrictDeck.prototype = Object.create(Deck.prototype);
 DistrictDeck.prototype.constructor = DistrictDeck;
 
+
 function CharacterDeck() {
   Deck.call(this);
-  this.deck = characterDeckArray;
+  this.deck = Object.create(characterDeckArray);
 }
 CharacterDeck.prototype = Object.create(Deck.prototype);
 CharacterDeck.prototype.constructor = CharacterDeck;

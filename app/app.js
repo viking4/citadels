@@ -59,7 +59,15 @@ function onSocketConnection(client) {
   client.on("remove player", onRemovePlayer);
   client.on("join room", onJoinRoom);
   client.on("leave room", onLeaveRoom);
+
   client.on("new game", onNewGame);
+  client.on("select character", onSelectCharacter);
+  client.on("play character", onPlayCharacter);
+  client.on("draw district cards", onDrawDistrictCards);
+
+  client.on("gold", onGold);
+  client.on("owned districts", onOwnedDistricts);
+  client.on("district hand", onDistrictHand);
 }
 
 // Socket client has disconnected
@@ -84,7 +92,6 @@ function onNewClient() {
 }
 // New player has joined
 function onNewPlayer(data) {
-
 // Create a new player
   var newPlayer = new Player(this.id, data.nickname);
 
@@ -96,11 +103,16 @@ function onNewPlayer(data) {
   for (var i = 0, ii = roomKeys.length; i < ii; i++) {
     if (roomKeys[i] != "") {
       var roomName = roomKeys[i].substring(1);
-      this.emit("new room", {roomName: roomName});
+      var roster = socket.sockets.clients(roomName);
+      for (i = 0, ii = roster.length; i < ii; i++) {
+        var player = playerById(roster[i].id);
+        this.emit("join room", {roomName: roomName, player: player});
+      }
+
     }
   }
 // Add new player to the players array
-  util.log("New player has been created: "+this.id);
+  util.log("New player has been created: "+ this.id);
   players[newPlayer.nickname] = newPlayer;
 }
 
@@ -108,7 +120,6 @@ function onRemovePlayer () {
   var removePlayer = playerById(this.id);
   util.log("A player has been removed: "+removePlayer.nickname);
   this.broadcast.emit("remove player", {nickname: removePlayer.nickname});
-
   delete players[removePlayer.nickname];
 }
 
@@ -129,15 +140,65 @@ function onLeaveRoom (data) {
 }
 function onNewGame (data) {
   var roster = socket.sockets.clients(data.roomName);
-  var players = [];
+
+  var order = [];
   for (var i = 0, ii = roster.length; i < ii; i++) {
     var player = playerById(roster[i].id);
-    players.push(player);
+    order.push({id: player.id, nickname: player.nickname});
   }
-  var newGame = new Game(players);
-  this.emit("new game", newGame);
-  this.broadcast.emit("new game", newGame);
-  games[data.roomName] = newGame;
+
+  var game = new Game(order);
+  game.districtDeck.shuffle();
+  util.log("A player has started a game");
+
+  for ( i = 0, ii = roster.length; i < ii; i++) {
+    var cards = game.districtDeck.draw(4);
+    var player = playerById(roster[i].id);
+    player.setGold(2);
+    player.setDistrictHand(cards);
+    roster[i].emit("new game", {gold: 2, hand: cards, order: order});
+  }
+  game.characterDeck.shuffle();
+  this.emit("select character", {nickname: playerById(this.id).nickname, characterDeck: game.characterDeck.deck});
+  games[data.roomName] = game;
+}
+
+function onSelectCharacter (data) {
+  var game = games[data.roomName];
+  game.selectCharacter(this.id, data.character);
+  if (data.characterDeck.length > 0) {
+    this.broadcast.to(data.roomName).emit("select character", {nickname: game.nextPlayerNickname(this.id), characterDeck: data.characterDeck});
+  } else {
+    var rank = 1, nickname = game.characterSelection[rank];
+    while (!nickname) {
+      this.broadcast.to(data.roomName).emit("no character", rank);
+      nickname = game.characterSelection[++rank];
+    }
+    this.broadcast.to(data.roomName).emit("play character", {nickname: nickname, rank: rank});
+  }
+}
+function onPlayCharacter (data) {
+
+}
+function onDrawDistrictCards (data) {
+  var cards = games[data.roomName].districtDeck.draw(data.draw);
+  var player = playerById(this.id);
+  this.emit("draw district cards", cards);
+}
+function onGold (data) {
+  var player = playerById(this.id);
+  player.setGold(data.gold);
+  this.broadcast.to(data.roomName).emit("gold", {nickname: player.nickname, gold: player.gold})
+}
+function onDistrictHand (data) {
+  var player = playerById(this.id);
+  player.setDistrictHand(data.districtHand);
+  this.broadcast.to(data.roomName).emit("number of district cards", {nickname: player.nickname, numberOfDistrictCards: data.districtHand.length});
+}
+function onOwnedDistricts (data) {
+  var player = playerById(this.id);
+  player.setOwnedDistricts(data.ownedDistricts);
+  this.broadcast.to(data.roomName).emit("owned districts", {nickname: player.nickname, ownedDistricts: data.ownedDistricts});
 }
 /**************************************************
  ** GAME HELPER FUNCTIONS
