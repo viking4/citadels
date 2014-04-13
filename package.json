@@ -1,0 +1,13 @@
+{
+  "name": "citadels",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "socket.io": "~0.9.16",
+    "express": "~4.0.0",
+    "morgan": "~1.0.0",
+    "method-override": "~1.0.0",
+    "errorhandler": "~1.0.0",
+    "html": "~0.0.7"
+  }
+}

@@ -11,7 +11,7 @@ define(["angular"], function (angular) {
         $scope.players = socketData.remoteRooms[roomName].players;
         $scope.localPlayer = {
           nickname: nickname,
-          characters: [],
+          characters: {},
           gold: 0,
           districtHand: [],
           ownedDistricts: [],
@@ -25,6 +25,7 @@ define(["angular"], function (angular) {
             this.ownedDistricts.push(card);
             this.districtHand.splice(this.districtHand.indexOf(card), 1);
             this.gold -= card.cost;
+            $scope.buildCap--;
           }
         };
 
@@ -52,7 +53,7 @@ define(["angular"], function (angular) {
           socket.emit("new game", {roomName: roomName})
         };
         socket.on("new game", function (data) {
-          $scope.localPlayer.gainDistrictHand(data.hand);
+          $scope.localPlayer.gainDistrictHand(data.districtHand);
           $scope.localPlayer.gainGold(data.gold);
           $scope.order = data.order;
           $scope.gameStart = true;
@@ -64,20 +65,19 @@ define(["angular"], function (angular) {
             $scope.firstRound = false;
 
             $scope.characterDeck = data.characterDeck;
-            if ($scope.characterDeck.length == 8 && Object.keys($scope.players) == 1) {
+            if ($scope.characterDeck.length == 8 && Object.keys($scope.players).length == 1) {
               $scope.characterDeck.pop();
               $scope.firstRound = true;
             }
-          } else {
-            $scope.selectCharacter = false;
           }
         });
+
         var char;
         $scope.chooseCharacter = function (rank) {
           for (var i = 0, ii = $scope.characterDeck.length; i < ii; i++) {
             if ($scope.characterDeck[i].rank == rank) {
               char = $scope.characterDeck.splice(i, 1)[0];
-              $scope.localPlayer.characters.push(char);
+              $scope.localPlayer.characters[rank] = char;
               if ($scope.firstRound) {
                 socket.emit("select character", {roomName: roomName, character: char, characterDeck: $scope.characterDeck});
                 $scope.selectCharacter = false;
@@ -98,17 +98,70 @@ define(["angular"], function (angular) {
             }
           }
         };
-
+        $scope.endTurn = function () {
+          $scope.turnStart = false;
+          socket.emit("play character", {roomName: roomName});
+        };
         socket.on("play character", function (data) {
           if (data.nickname == nickname) {
-            $scope.turnStart = true;
-            $scope["rank"+data.rank] = true;
-            $scope.isBuild = false;
-            $scope.buildCap = 1;
-            if (data.rank == 7) {
-              $scope.buildCap = 2;
+            var actionWatch = $scope.$watch("isBuild", function () {
+              if ($scope.isBuild) {
+                switch (data.rank) {
+                  case 6:
+                    $scope.localPlayer.gainGold(1);
+                    break;
+                  case 7:
+                    socket.emit("architect draw");
+                    break;
+                }
+                actionWatch();
+              }
+            });
+            var earnDistrictType;
+            switch (data.rank) {
+              case 4:
+                earnDistrictType = "Noble";
+                break;
+              case 5:
+                earnDistrictType = "Religious";
+                break;
+              case 6:
+                earnDistrictType = "Trade";
+                break;
+              case 8:
+                earnDistrictType = "Military";
+                break;
             }
-            $scope.chooseOne = false;
+            if (earnDistrictType) {
+              for (var i = 0, ii = $scope.localPlayer.ownedDistricts.length, gold = 0; i < ii; i++) {
+                if ($scope.localPlayer.ownedDistricts[i].type == earnDistrictType)
+                  gold++;
+              }
+              if (gold > 0)
+                $scope.localPlayer.gainGold(gold);
+            }
+
+            switch ($scope.localPlayer.characters[data.rank].status) {
+              case "murdered":
+                $scope.turnStart = false;
+                break;
+              case "stole":
+                socket.emit("stole", $scope.localPlayer.gold);
+                $scope.localPlayer.gold = 0;
+              default :
+                $scope.turnStart = true;
+                $scope["rank"+data.rank] = true;
+                $scope.isBuild = false;
+                $scope.buildCap = 1;
+                $scope.chooseOne = false;
+                if (data.rank == 7)
+                  $scope.buildCap = 3;
+            }
+          }
+        });
+        socket.on("stole", function (gold) {
+          if ($scope.localPlayer.characters[2]) {
+            $scope.localPlayer.gainGold(gold);
           }
         });
 
@@ -119,16 +172,63 @@ define(["angular"], function (angular) {
           $scope.chooseDiscardCards = cards;
         });
 
-
         $scope.murder = function (rank) {
-
+          if (rank > 0) {
+            socket.emit("murder", {roomName: roomName, rank: rank});
+          }
         };
+        socket.on("murder", function (rank) {
+          $scope.murderVictimRank = rank;
+          if ($scope.localPlayer.characters[rank]) {
+            $scope.localPlayer.characters[rank].status = "murdered";
+          }
+        });
+
         $scope.steal = function (rank) {
-
+          if (rank > 0) {
+            socket.emit("steal", {roomName: roomName, rank: rank});
+          }
         };
-        $scope.exchange = function (nickname) {
+        socket.on("steal", function (rank) {
+          if ($scope.localPlayer.characters[rank]) {
+            $scope.localPlayer.characters[rank].status = "stole";
+          }
+        });
 
+        $scope.exchange = function (id) {
+          if (id) {
+            socket.emit("exchange", {roomName: roomName, id: id, districtHand: $scope.localPlayer.districtHand});
+          } else {
+            socket.emit("exchange", {roomName: roomName, noOfExchangeCards: $scope.noOfExchangeCards});
+          }
         };
+        $scope.checkNoOfExchangeCards = function () {
+          if ($scope.noOfExchangeCards > 0 && $scope.noOfExchangeCards <= $scope.localPlayer.districtHand.length) {
+            $scope.chooseExchangeCards = true;
+            $scope.exchangeCount = 0;
+          }
+          if ($scope.noOfExchangeCards == 0)
+            $scope.rank3 = false;
+        };
+        $scope.exchangeCard = function (card) {
+          this.districtHand.splice(this.districtHand.indexOf(card), 1);
+          $scope.exchangeCount++;
+          if ($scope.noOfExchangeCards == $scope.exchangeCount) {
+            $scope.exchange();
+            $scope.rank3 = false;
+          }
+        };
+        socket.on("exchange", function (hand) {
+          $scope.localPlayer.districtHand = hand;
+        });
+        socket.on("exchanged", function (data) {
+          if ($scope.localPlayer.nickname == data.nickname) {
+            $scope.localPlayer.gainDistrictHand(data.districtHand);
+          }
+        });
+        socket.on("architect draw", function (hand) {
+          $scope.localPlayer.gainDistrictHand(hand);
+        });
 
         $scope.leave = function () {
           socket.emit("leave room", {roomName: roomName});

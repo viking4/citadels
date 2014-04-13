@@ -4,13 +4,14 @@ var DistrictDeck = require("./deck").DistrictDeck,
 function Game(order) {
   this.districtDeck = new DistrictDeck();
   this.characterDeck = new CharacterDeck();
-  this.characterSelection = new Array();
-  for (var i = 0, ii = this.characterDeck.length; i <= ii; i++) {
-    this.characterSelection.push(null);
-  }
+
   this.order = order;
+  this.king = order[0].nickname;
 }
 Game.prototype.players = [];
+Game.prototype.setKing = function (king) {
+  this.king = king;
+};
 Game.prototype.nextPlayerNickname = function (id) {
   for (var i = 0, ii = this.order.length; i < ii; i++) {
     if (this.order[i].id == id) {
@@ -19,11 +20,7 @@ Game.prototype.nextPlayerNickname = function (id) {
     }
   }
 };
-Game.prototype.resetCharacterSelection = function () {
-  for (var i = 0, ii = this.characterSelection.length; i <= ii; i++) {
-    this.characterSelection[i] = null;
-  }
-};
+Game.prototype.characterSelection = {};
 Game.prototype.selectCharacter = function (id, char) {
   for (var i = 0, ii = this.order.length; i < ii; i++) {
     if (this.order[i].id == id) {

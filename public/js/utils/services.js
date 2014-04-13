@@ -4,7 +4,7 @@ define(["angular", "btford.socket-io"], function (angular) {
   return angular.module("utils.services", ["btford.socket-io"])
     .factory("socket", ["socketFactory", function (socketFactory) {
       return socketFactory({
-        ioSocket: io.connect("http://localhost", {port: 7000, transports: ["websocket"]})
+        ioSocket: io.connect("http://localhost", {port: 5000, transports: ["websocket"]})
       });
     }])
     .factory("socketData", function () {
