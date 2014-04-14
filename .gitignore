@@ -3,3 +3,4 @@
 /public/bower_components
 /app/node_modules
 .idea/
+.project
