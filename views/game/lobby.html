@@ -1,3 +1,6 @@
+
+<textarea readonly ng-model="gameLog" scroll-glue style="width:100%; height: 250px; font-size: 10"></textarea>
+<br>
 Your nickname: {{localPlayer.nickname}} <br>
 Joined Players
 <ul ng-repeat="player in players">
@@ -11,7 +14,7 @@ Joined Players
 </div>
 
 <div ng-show="gameStart">
-  <button ng-click="endTurn()"> End Turn</button>
+  <button ng-click="endTurn()" ng-show="turnStart || murdered"> End Turn</button>
   <h3>Characters</h3>
   <ul ng-repeat="char in localPlayer.characters">
     <li>{{char.name}} {{char.rank}}</li>
@@ -27,8 +30,8 @@ Joined Players
         <td>{{char.name}} </td>
         <td>{{char.rank}} </td>
         <td>
-          <button ng-show="isChoose" ng-click="chooseCharacter(char.rank)">Choose</button>
-          <button ng-hide="isChoose || firstRound" ng-click="discardCharacter(char.rank)">Discard</button>
+          <button ng-show="isChoose" ng-click="chooseCharacter(char)">Choose</button>
+          <button ng-hide="isChoose || firstRound" ng-click="discardCharacter(char)">Discard</button>
         </td>
       </tr>
     </table>
@@ -80,7 +83,7 @@ Joined Players
     </table>
   </div>
   <div ng-show="turnStart">
-  <div ng-show="rank1" ng-init="murderTargets = [
+  <div ng-show="Assassin" ng-init="murderTargets = [
     {rank: 0, name: 'No one'},
     {rank: 2, name: 'Thief'},
     {rank: 3, name: 'Magician'},
@@ -99,12 +102,12 @@ Joined Players
         <td>{{char.name}} </td>
         <td>{{char.rank}} </td>
         <td>
-          <button ng-click="murder(char.rank); $parent.rank1=false;">Murder</button>
+          <button ng-click="murder(char)">Murder</button>
         </td>
       </tr>
     </table>
   </div>
-  <div ng-show="rank2" ng-init="stealTargets = [
+  <div ng-show="Thief" ng-init="stealTargets = [
     {rank: 0, name: 'No one'},
     {rank: 3, name: 'Magician'},
     {rank: 4, name: 'King'},
@@ -122,12 +125,12 @@ Joined Players
         <td>{{char.name}} </td>
         <td>{{char.rank}} </td>
         <td>
-          <button ng-disabled="char.rank == murderVictimRank" ng-click="steal(char.rank); $parent.rank2=false;">Steal</button>
+          <button ng-disabled="char.rank == murderVictim.rank" ng-click="steal(char)">Steal</button>
         </td>
       </tr>
     </table>
   </div>
-  <div ng-show="rank3">
+  <div ng-show="Magician">
     <table class="table" style="width: 300px" ng-hide="chooseExchangeCards">
       <th>Player </th>
       <th>No. of cards </th>
@@ -135,13 +138,13 @@ Joined Players
       <tr>
         <td>Deck</td>
         <td><input type="number" ng-model="noOfExchangeCards" ng-init="noOfExchangeCards = 0"></td>
-        <button ng-click="checkNoOfExchangeCards()">Exchange</button>
+        <td><button ng-click="checkNoOfExchangeCards()">Exchange</button></td>
       </tr>
       <tr ng-repeat="player in players" >
         <td>{{player.nickname}} </td>
         <td>{{player.numberOfDistrictCards}} </td>
         <td>
-          <button ng-click="exchange(player.id); $parent.rank3 = false;">Exchange</button>
+          <button ng-click="exchange(player)">Exchange</button>
         </td>
       </tr>
     </table>
@@ -155,7 +158,7 @@ Joined Players
         <td>{{card.name}} </td>
         <td>{{card.type}} </td>
         <td>{{card.cost}} </td>
-        <td><button ng-click="exchangeCard(card)"> Exchange </button> </td>
+        <td><button ng-click="discardCardToExchange(card)"> Discard </button> </td>
       </tr>
     </table>
   </div>
@@ -173,7 +176,6 @@ Joined Players
   </div>
   <div ng-show="rank8">
     Warlord
-
   </div>
   </div>
   <h3>Other Players</h3>

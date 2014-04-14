@@ -79,13 +79,20 @@ function DistrictDeck() {
 DistrictDeck.prototype = Object.create(Deck.prototype);
 DistrictDeck.prototype.constructor = DistrictDeck;
 
-
 function CharacterDeck() {
   Deck.call(this);
   this.deck = Object.create(characterDeckArray);
 }
 CharacterDeck.prototype = Object.create(Deck.prototype);
 CharacterDeck.prototype.constructor = CharacterDeck;
+CharacterDeck.prototype.characterByRank = function (rank) {
+  for (var i = 0, ii = this.deck.length; i < ii; i++) {
+    if (this.deck[i].rank == rank) {
+      return this.deck[i];
+    }
+  }
+  return false;
+};
 
 exports.DistrictDeck = DistrictDeck;
 exports.CharacterDeck = CharacterDeck;

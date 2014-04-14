@@ -6,7 +6,7 @@ var util = require("util"),	// Utility resources (logging, object inspection, et
   Game = require("../app/game").Game;
 
 module.exports = function(io) {
-  var players = [], games = {};
+  var players = {}, games = {};
 
   io.sockets.on('connection', onConnection);
 
@@ -28,7 +28,7 @@ module.exports = function(io) {
 
     client.on("murder", onMurder);
     client.on("steal", onSteal);
-    client.on("stole", onStole);
+    client.on("stolen", onStolen);
     client.on("exchange", onExchange);
     client.on("architect draw", onArchitectDraw);
 
@@ -39,13 +39,11 @@ module.exports = function(io) {
     // Socket client has disconnected
     function onClientDisconnect() {
       util.log("Client has disconnected: "+this.id);
-
       var player = playerById(this.id);
       if (!player) {
         util.log("Player not found: "+this.id);
         return;
       }
-
       util.log("Player has been removed: "+player.nickname);
       this.broadcast.emit("remove player", {nickname: player.nickname});
       delete players[player.nickname];
@@ -58,9 +56,7 @@ module.exports = function(io) {
     }
     function onNewPlayer(data) {
       var newPlayer = new Player(this.id, data.nickname);
-
       this.broadcast.emit("new player", newPlayer);
-
       var roomKeys = Object.keys(io.sockets.manager.rooms);
       for (var i = 0, ii = roomKeys.length; i < ii; i++) {
         if (roomKeys[i] != "") {
@@ -70,24 +66,20 @@ module.exports = function(io) {
             var player = playerById(roster[i].id);
             this.emit("join room", {roomName: roomName, player: player});
           }
-
         }
       }
       util.log("New player has been created: "+ this.id);
       players[newPlayer.nickname] = newPlayer;
     }
-
     function onRemovePlayer () {
       var removePlayer = playerById(this.id);
       util.log("A player has been removed: "+removePlayer.nickname);
       this.broadcast.emit("remove player", {nickname: removePlayer.nickname});
       delete players[removePlayer.nickname];
     }
-
     function onJoinRoom (data) {
       this.join(data.roomName);
       util.log("A player joins room: "+data.roomName);
-
       var joinPlayer = playerById(this.id);
       this.broadcast.emit("join room", {roomName: data.roomName, player: joinPlayer});
     }
@@ -96,17 +88,18 @@ module.exports = function(io) {
       var leavePlayer = playerById(this.id);
       this.leave(data.roomName);
       util.log("A player leaves room: "+leavePlayer.roomName);
-
       this.broadcast.emit("leave room", {roomName: data.roomName, player: leavePlayer});
     }
     function onNewGame (data) {
       var roster = io.sockets.clients(data.roomName);
+      var hostPlayer = playerById(this.id);
       var order = [];
       for (var i = 0, ii = roster.length; i < ii; i++) {
         var player = playerById(roster[i].id);
         order.push({id: player.id, nickname: player.nickname});
       }
       var game = new Game(order);
+      game.setKing(hostPlayer.nickname);
       game.districtDeck.shuffle();
       util.log("A player has started a game");
       for ( i = 0, ii = roster.length; i < ii; i++) {
@@ -114,43 +107,36 @@ module.exports = function(io) {
         player = playerById(roster[i].id);
         player.setGold(2);
         player.setDistrictHand(cards);
-        roster[i].emit("new game", {gold: 2, districtHand: cards, order: order});
+        roster[i].emit("new game", {nickname: hostPlayer.nickname, gold: 2, districtHand: cards, order: order});
       }
       game.characterDeck.shuffle();
+      this.emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck});
       this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck});
       games[data.roomName] = game;
     }
-
     function onSelectCharacter (data) {
       var game = games[data.roomName];
       game.selectCharacter(this.id, data.character);
       if (data.characterDeck.length > 0) {
-        this.broadcast.to(data.roomName).emit("select character", {nickname: game.nextPlayerNickname(this.id), characterDeck: data.characterDeck});
+        this.broadcast.to(data.roomName).emit("select character", {nickname: game.playerAfter(this.id), characterDeck: data.characterDeck});
       } else {
-        var rank = 1, nickname = game.characterSelection[rank];
-        while (!nickname) {
-          nickname = game.characterSelection[++rank];
-        }
-        console.log(rank);
-        this.broadcast.to(data.roomName).emit("play character", {nickname: nickname, rank: rank});
-        delete game.characterSelection[rank];
+        var nextPlayer = game.getNextPlayer();
+        this.emit("play character", nextPlayer);
+        this.broadcast.to(data.roomName).emit("play character", nextPlayer);
       }
     }
     function onPlayCharacter (data) {
       var game = games[data.roomName];
-      var rank = 1, nickname = game.characterSelection[rank];
-      while (!nickname && rank <= 8) {
-        nickname = game.characterSelection[++rank];
-      }
-      if (rank <= 8) {
-        console.log(rank);
-        this.broadcast.to(data.roomName).emit("play character", {nickname: nickname, rank: rank});
-        delete game.characterSelection[rank];
-        if (rank == 4) {
-          game.setKing(nickname);
+      var nextPlayer = game.getNextPlayer();
+      if (nextPlayer.nickname) {
+        this.emit("play character", nextPlayer);
+        this.broadcast.to(data.roomName).emit("play character", nextPlayer);
+        if (nextPlayer.character.rank == 4) {
+          game.setKing(nextPlayer.nickname);
         }
       } else {
         game.characterDeck.shuffle();
+        this.emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck});
         this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck});
       }
     }
@@ -159,29 +145,30 @@ module.exports = function(io) {
       this.emit("draw district cards", cards);
     }
     function onMurder (data) {
-      this.broadcast.to(data.roomName).emit("murder", data.rank);
+      this.broadcast.to(data.roomName).emit("murder", data.character);
     }
     function onSteal (data) {
-      this.broadcast.to(data.roomName).emit("steal", data.rank);
+      this.broadcast.to(data.roomName).emit("steal", data.character);
     }
-    function onStole (data) {
-      this.broadcast.to(data.roomName).emit("stole", data.gold);
+    function onStolen (data) {
+      this.broadcast.to(data.roomName).emit("stolen", data.gold);
     }
     function onExchange (data) {
-      if (data.id) {
-        var exchangedPlayer = playerById(data.id);
+      if (data.player) {
+        var exchangePlayer = playerById(this.id);
+        var exchangedPlayer = playerById(data.player.id);
         this.emit("exchange", exchangedPlayer.districtHand);
-        this.broadcast.to(data.roomName).emit("exchanged", {nickname: exchangedPlayer.nickname, districtHand: data.districtHand});
+        this.broadcast.to(data.roomName).emit("exchanged", {nickname: data.player.nickname, cards: exchangePlayer.districtHand});
       } else {
         var cards = games[data.roomName].districtDeck.draw(data.noOfExchangeCards);
         this.emit("exchange", cards);
       }
     }
-    function onArchitectDraw () {
+    function onArchitectDraw (data) {
       var cards = games[data.roomName].districtDeck.draw(2);
       this.emit("architect draw", cards);
+      this.broadcast.to(data.roomName).emit("architect draw log", playerById(this.id).nickname);
     }
-
     function onGold (data) {
       var player = playerById(this.id);
       player.setGold(data.gold);
@@ -197,7 +184,6 @@ module.exports = function(io) {
       player.setOwnedDistricts(data.ownedDistricts);
       this.broadcast.to(data.roomName).emit("owned districts", {nickname: player.nickname, ownedDistricts: data.ownedDistricts});
     }
-
     /**************************************************
      ** GAME HELPER FUNCTIONS
      **************************************************/
@@ -209,6 +195,14 @@ module.exports = function(io) {
           return player;
       }
       return false;
+    }
+    function roomById(id) {
+      var rooms = Object.keys(io.sockets.manager.roomClients[id]);
+      for (var i = 0, ii = rooms.length; i < ii; i++){
+        if (rooms[i] != "") {
+          return rooms[i].substring(1);
+        }
+      }
     }
   }
 };

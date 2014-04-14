@@ -56,18 +56,18 @@ define(["angular", "ui-router", "utils/services"], function (angular) {
 
         socket.on("join room", function (data) {
           if (socketData.remoteRooms[data.roomName]) {
-            socketData.remoteRooms[data.roomName].players[data.player.nickname] = {nickname: data.player.nickname};
             console.log(data.player.nickname + " has joined " + data.roomName);
           } else {
             socketData.remoteRooms[data.roomName] = {
               roomName: data.roomName,
               players: {}
             };
-            socketData.remoteRooms[data.roomName].players[data.player.nickname] = {
-              nickname: data.player.nickname
-            };
             console.log(data.player.nickname + " has created " + data.roomName);
           }
+          socketData.remoteRooms[data.roomName].players[data.player.nickname] = {
+            nickname: data.player.nickname,
+            id: data.player.id
+          };
         });
 
         socket.on("leave room", function (data) {

@@ -12,13 +12,25 @@ Game.prototype.players = [];
 Game.prototype.setKing = function (king) {
   this.king = king;
 };
-Game.prototype.nextPlayerNickname = function (id) {
+Game.prototype.playerAfter = function (id) {
   for (var i = 0, ii = this.order.length; i < ii; i++) {
     if (this.order[i].id == id) {
       var next = (i+1)%ii;
       return this.order[next].nickname;
     }
   }
+};
+Game.prototype.getNextPlayer = function () {
+  var rank = 1, nickname = this.characterSelection[rank];
+  while (!nickname && rank <= 8) {
+    nickname = this.characterSelection[++rank];
+  }
+  var char = this.characterDeck.characterByRank(rank);
+  delete this.characterSelection[rank];
+  return {
+    nickname: nickname,
+    character: char
+  };
 };
 Game.prototype.characterSelection = {};
 Game.prototype.selectCharacter = function (id, char) {
@@ -27,8 +39,5 @@ Game.prototype.selectCharacter = function (id, char) {
       this.characterSelection[char.rank] = this.order[i].nickname;
     }
   }
-};
-Game.prototype.playerByCharacterRank = function (rank) {
-
 };
 exports.Game = Game;
