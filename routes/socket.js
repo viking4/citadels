@@ -94,7 +94,7 @@ module.exports = function(io) {
     function onLeaveRoom (data) {
       var leavePlayer = playerById(this.id);
       this.leave(data.roomName);
-      util.log("A player leaves room: "+leavePlayer.roomName);
+      util.log("A player leaves room: "+data.roomName);
       this.emit("leave room", {roomName: data.roomName, player: leavePlayer});
       this.broadcast.emit("leave room", {roomName: data.roomName, player: leavePlayer});
     }
@@ -175,6 +175,7 @@ module.exports = function(io) {
         }
         this.emit("game end", {winner: winner, final: final});
         this.broadcast.to(data.roomName).emit("game end", {winner: winner, final: final});
+        delete games[data.roomName];
       }
     }
     function onDrawDistrictCards (data) {

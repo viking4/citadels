@@ -19,16 +19,16 @@ Joined Players
 <br>
 
 <div ng-hide="gameStart">
-  <button ng-click="start();">Start</button>
-  <button ng-click="leave()">Leave</button>
+  <button ng-click="start();" class="btn btn-primary">Start</button>
+  <button ng-click="leave()" class="btn btn-warning">Leave</button>
 </div>
 
 <div ng-show="gameStart">
-  <button ng-click="endTurn()" ng-show="turnStart || murdered"> End Turn</button>
+  <button ng-click="endTurn()" ng-show="turnStart || murdered" class="btn btn-success"> End Turn</button>
   <div>
     <h3>Characters</h3>
     <ul ng-repeat="char in localPlayer.characters">
-      <li>{{char.name}} {{char.rank}}</li>
+      <li>{{char.name}} {{char.rank}} <span ng-show="char.name == localPlayer.currCharacter.name && turnStart"> (Playing)</span></li>
     </ul>
     <div ng-show="selectCharacter">
       <table class="table" style="width: 300px">
@@ -74,12 +74,12 @@ Joined Players
         <td>{{card.name}} </td>
         <td>{{card.type}} </td>
         <td>{{card.cost}} </td>
-        <td><button ng-hide="card.cost > localPlayer.gold || buildCap == 0 || !isBuild" ng-click="localPlayer.buildDistrict(card);"> Build </button> </td>
+        <td><button ng-hide="card.cost > localPlayer.gold || buildCap == 0 || !isBuild" ng-click="localPlayer.buildDistrict(card);" class="btn btn-primary btn-sm"> Build </button> </td>
       </tr>
     </table>
   </div>
   <div ng-hide="isBuild || !turnStart">
-    <button ng-click="localPlayer.gainGold(2); isBuild = true;" ng-hide="hideTwoGold" class="btn btn-primary">Take two golds</button>
+    <button ng-click="getTwoGold()" ng-hide="hideTwoGold" class="btn btn-primary">Take two golds</button>
     <button ng-click="drawTwoCards(); hideTwoGold = true; chooseOne = true;" ng-hide="chooseOne" class="btn btn-success">Draw two district cards, then discard one</button>
     <table class="table" style="width: 300px" ng-show="chooseOne">
       <tr>
@@ -91,7 +91,7 @@ Joined Players
         <td>{{card.name}} </td>
         <td>{{card.type}} </td>
         <td>{{card.cost}} </td>
-        <td><button ng-click="localPlayer.gainDistrictHand([card]); $parent.isBuild = true;" class="btn btn-primary"> Choose </button> </td>
+        <td><button ng-click="chooseOneCard(card)" class="btn btn-primary"> Choose </button> </td>
       </tr>
     </table>
   </div>
@@ -115,7 +115,7 @@ Joined Players
           <td>{{char.name}} </td>
           <td>{{char.rank}} </td>
           <td>
-            <button ng-click="murder(char)">Murder</button>
+            <button ng-click="murder(char)" class="btn btn-danger btn-sm">Murder</button>
           </td>
         </tr>
       </table>
@@ -138,7 +138,7 @@ Joined Players
           <td>{{char.name}} </td>
           <td>{{char.rank}} </td>
           <td>
-            <button ng-hide="char.rank == murderVictim.rank" ng-click="steal(char)" class="btn btn-info">Steal</button>
+            <button ng-hide="char.rank == murderVictim.rank" ng-click="steal(char)" class="btn btn-warning btn-sm">Steal</button>
           </td>
         </tr>
       </table>
@@ -151,13 +151,13 @@ Joined Players
         <tr>
           <td>Deck</td>
           <td><input type="number" ng-model="noOfExchangeCards" ng-init="noOfExchangeCards = 0"></td>
-          <td><button ng-click="checkNoOfExchangeCards()" class="btn btn-primary">Exchange</button></td>
+          <td><button ng-click="checkNoOfExchangeCards()" class="btn btn-info">Exchange</button></td>
         </tr>
         <tr ng-repeat="player in players" >
           <td>{{player.nickname}} </td>
           <td>{{player.numberOfDistrictCards}} </td>
           <td>
-            <button ng-click="exchange(player)">Exchange</button>
+            <button ng-click="exchange(player)" class="btn btn-info">Exchange</button>
           </td>
         </tr>
       </table>
@@ -208,7 +208,7 @@ Joined Players
         <td>{{card.name}} </td>
         <td>{{card.type}} </td>
         <td>{{card.cost}} </td>
-        <td><button ng-show="Warlord && localPlayer.gold >= (card.cost-1) && player.nickname != bishopNickname && player.ownedDistricts.length < 8" ng-click="destroy(player, card)">Destroy</button></td>
+        <td><button ng-show="Warlord && localPlayer.gold >= (card.cost-1) && player.nickname != bishopNickname && player.ownedDistricts.length < 8" ng-click="destroy(player, card)" class="btn btn-danger">Destroy</button></td>
       </tr>
     </table>
   </div>

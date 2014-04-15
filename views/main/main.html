@@ -1,6 +1,6 @@
 <form ng-hide="socketData.localPlayer.nickname != '' || !socketData.socketConnected" ng-submit="createPlayer()">
-  <input type="text" placeholder="Player name" ng-model="nickname">
-  <button type="submit">Create Player</button>
+  <input type="text" placeholder="Player name" ng-model="nickname" autofocus>
+  <button type="submit" class="btn btn-sm btn-primary">Create Player</button>
   <span ng-show="invalidNickname">Nickname existed!</span><br>
   <br>
 </form>
@@ -11,16 +11,18 @@
   <ul ng-repeat="player in socketData.remotePlayers">
     <li>{{player.nickname}}</li>
   </ul>
+  <form ng-submit="createRoom()">
   <br><input type="text" placeholder="Room Name" ng-model="roomName">
   <br><input type="number" placeholder="# of players" ng-model="roomCap" ng-init="roomCap = 2"> players
-  <br><button ng-click="createRoom()">Create</button>
+  <br><button type="submit" class="btn btn-primary btn-sm">Create</button>
+  </form>
   <span ng-show="roomExisted">Room existed!</span><br>
   <span ng-show="not2">Only support two-player game right now</span><br>
 
   Room List <br></span>
   <ul ng-repeat="room in socketData.remoteRooms">
-    <li>{{room.roomName}}<button ng-click="joinRoom(room.roomName)">Join</button>{{room.numberOfPlayers}}/{{room.roomCap}}</li>
+    <li>{{room.roomName}}<button ng-click="joinRoom(room.roomName)" class="btn btn-info btn-sm">Join</button>{{room.numberOfPlayers}}/{{room.roomCap}}</li>
   </ul>
   <br><span ng-show="roomFull">Room is full</span>
-  <br> <button ng-click="logout()">log out</button>
+  <br> <button ng-click="logout()" class="btn btn-danger">log out</button>
 </div>

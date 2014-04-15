@@ -8,5 +8,10 @@ define(["angular"], function (angular) {
           elms[0].scrollTo = elms[0].scrollHeight;
         })
       }
-    });
+    })
+    .directive('autofocus', function () {
+      return function (scope, element) {
+        element[0].focus();
+      };
+    });;
 });

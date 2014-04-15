@@ -48,6 +48,17 @@ define(["angular", "ui-router", "utils/services"], function (angular) {
           var player = socketData.remotePlayers[data.nickname];
           if (player) {
             delete socketData.remotePlayers[data.nickname];
+            var roomKeys  = Object.keys(socketData.remoteRooms);
+            for (var i = 0, ii = roomKeys.length; i < ii; i++) {
+              var room = socketData.remoteRooms[roomKeys[i]];
+              if (room.players[data.nickname]) {
+                delete room.players[data.nickname];
+                room.numberOfPlayers = Object.keys(room.players).length;
+                if (room.numberOfPlayers == 0) {
+                  delete socketData.remoteRooms[roomKeys[i]];
+                }
+              }
+            }
           } else {
             console.log("Player not found: "+data.id);
             return;
@@ -59,7 +70,7 @@ define(["angular", "ui-router", "utils/services"], function (angular) {
           if (room) {
             console.log(data.player.nickname + " has joined " + data.roomName);
           } else {
-            room = socketData.remoteRooms[data.roomName] = {
+            socketData.remoteRooms[data.roomName] = {
               roomName: data.roomName,
               players: {},
               roomCap: data.roomCap,
@@ -67,22 +78,13 @@ define(["angular", "ui-router", "utils/services"], function (angular) {
             };
             console.log(data.player.nickname + " has created " + data.roomName);
           }
-          room.players[data.player.nickname] = {
+          socketData.remoteRooms[data.roomName].players[data.player.nickname] = {
             nickname: data.player.nickname,
             id: data.player.id
           };
-          room.numberOfPlayers = Object.keys(room.players).length;
+          socketData.remoteRooms[data.roomName].numberOfPlayers = Object.keys(socketData.remoteRooms[data.roomName].players).length;
           if (socketData.localPlayer.nickname == data.player.nickname) {
             $state.go("lobby", {roomName: data.roomName});
-          }
-        });
-
-        socket.on("leave room", function (data) {
-          var room = socketData.remoteRooms[data.roomName];
-          delete room.players[data.player.nickname];
-          room.numberOfPlayers = Object.keys(room.players).length;
-          if (Object.keys(socketData.remoteRooms[data.roomName].players).length == 0) {
-            delete socketData.remoteRooms[data.roomName];
           }
         });
       }]);
