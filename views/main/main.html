@@ -1,9 +1,9 @@
-<div ng-hide="socketData.localPlayer.nickname != ''">
+<form ng-hide="socketData.localPlayer.nickname != '' || !socketData.socketConnected" ng-submit="createPlayer()">
   <input type="text" placeholder="Player name" ng-model="nickname">
-  <button ng-click="createPlayer()" ng-disabled="!socketData.socketConnected">Create Player</button>
+  <button type="submit">Create Player</button>
   <span ng-show="invalidNickname">Nickname existed!</span><br>
   <br>
-</div>
+</form>
 <div ng-show="socketData.localPlayer.nickname != ''">
   Welcome, {{socketData.localPlayer.nickname}}! <br>
 

@@ -38,6 +38,7 @@ module.exports = function(io) {
     client.on("owned districts", onOwnedDistricts);
     client.on("district hand", onDistrictHand);
 
+    client.on("chat", onChat);
     // Socket client has disconnected
     function onClientDisconnect() {
       util.log("Client has disconnected: "+this.id);
@@ -237,6 +238,13 @@ module.exports = function(io) {
           this.emit("game end this round", {nickname: player.nickname});
           this.broadcast.to(data.roomName).emit("game end this round", {nickname: player.nickname});
         }
+      }
+    }
+    function onChat (data) {
+      var player = playerById(this.id);
+      if (player) {
+        this.emit("chat", {nickname: player.nickname, chat: data.chat});
+        this.broadcast.to(data.roomName).emit("chat", {nickname: player.nickname, chat: data.chat});
       }
     }
     /**************************************************

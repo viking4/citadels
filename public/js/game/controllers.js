@@ -227,7 +227,7 @@ define(["angular"], function (angular) {
             log("As " + char.name + ", you will be murdered on your turn");
             $scope.localPlayer.characters[char.rank].status = "murdered";
           } else {
-            log("The Assassin choost to murder " + char.name);
+            log("The Assassin chooses to murder " + char.name);
           }
         });
         $scope.steal = function (char) {
@@ -330,6 +330,13 @@ define(["angular"], function (angular) {
           }
           $scope.$state.go("main");
         };
+        $scope.chat = function () {
+          socket.emit("chat", {roomName: roomName, chat: $scope.chatInput});
+          $scope.chatInput = "";
+        };
+        socket.on("chat", function (data) {
+          $scope.chatLog += data.nickname + ": " + data.chat + "\n";
+        });
         function log(str) {
           $scope.gameLog += $filter('date')(new Date(), 'mediumTime') + ": " + str + "\n";
         }
