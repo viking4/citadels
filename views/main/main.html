@@ -7,16 +7,20 @@
 <div ng-show="socketData.localPlayer.nickname != ''">
   Welcome, {{socketData.localPlayer.nickname}}! <br>
 
-  Player List <span ng-hide="socketData.remotePlayers.length > 0">: None <br></span>
+  Player List</span>
   <ul ng-repeat="player in socketData.remotePlayers">
     <li>{{player.nickname}}</li>
   </ul>
-  <br><input type="text" placeholder="Room Name" ng-model="roomName"><button ng-click="createRoom()">Create</button>
-  <span ng-show="invalidRoomName">Room existed!</span><br>
+  <br><input type="text" placeholder="Room Name" ng-model="roomName">
+  <br><input type="number" placeholder="# of players" ng-model="roomCap" ng-init="roomCap = 2"> players
+  <br><button ng-click="createRoom()">Create</button>
+  <span ng-show="roomExisted">Room existed!</span><br>
+  <span ng-show="not2">Only support two-player game right now</span><br>
 
-  Room List  <span ng-hide="socketData.remoteRooms.length > 0"> : None <br></span>
+  Room List <br></span>
   <ul ng-repeat="room in socketData.remoteRooms">
-    <li>{{room.roomName}}<button ng-click="joinRoom(room.roomName)">Join</button></li>
+    <li>{{room.roomName}}<button ng-click="joinRoom(room.roomName)">Join</button>{{room.numberOfPlayers}}/{{room.roomCap}}</li>
   </ul>
+  <br><span ng-show="roomFull">Room is full</span>
   <br> <button ng-click="logout()">log out</button>
 </div>

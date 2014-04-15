@@ -55,23 +55,32 @@ define(["angular", "ui-router", "utils/services"], function (angular) {
         });
 
         socket.on("join room", function (data) {
-          if (socketData.remoteRooms[data.roomName]) {
+          var room = socketData.remoteRooms[data.roomName];
+          if (room) {
             console.log(data.player.nickname + " has joined " + data.roomName);
           } else {
-            socketData.remoteRooms[data.roomName] = {
+            room = socketData.remoteRooms[data.roomName] = {
               roomName: data.roomName,
-              players: {}
+              players: {},
+              roomCap: data.roomCap,
+              numberOfPlayers: 0
             };
             console.log(data.player.nickname + " has created " + data.roomName);
           }
-          socketData.remoteRooms[data.roomName].players[data.player.nickname] = {
+          room.players[data.player.nickname] = {
             nickname: data.player.nickname,
             id: data.player.id
           };
+          room.numberOfPlayers = Object.keys(room.players).length;
+          if (socketData.localPlayer.nickname == data.player.nickname) {
+            $state.go("lobby", {roomName: data.roomName});
+          }
         });
 
         socket.on("leave room", function (data) {
-          delete socketData.remoteRooms[data.roomName].players[data.player.nickname];
+          var room = socketData.remoteRooms[data.roomName];
+          delete room.players[data.player.nickname];
+          room.numberOfPlayers = Object.keys(room.players).length;
           if (Object.keys(socketData.remoteRooms[data.roomName].players).length == 0) {
             delete socketData.remoteRooms[data.roomName];
           }

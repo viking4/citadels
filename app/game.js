@@ -4,11 +4,13 @@ var DistrictDeck = require("./deck").DistrictDeck,
 function Game(order) {
   this.districtDeck = new DistrictDeck();
   this.characterDeck = new CharacterDeck();
-
+  this.players = [];
+  this.characterSelection = {};
+  this.ender = "";
   this.order = order;
   this.king = order[0].nickname;
 }
-Game.prototype.players = [];
+
 Game.prototype.setKing = function (king) {
   this.king = king;
 };
@@ -17,6 +19,13 @@ Game.prototype.playerAfter = function (id) {
     if (this.order[i].id == id) {
       var next = (i+1)%ii;
       return this.order[next].nickname;
+    }
+  }
+};
+Game.prototype.selectCharacter = function (id, char) {
+  for (var i = 0, ii = this.order.length; i < ii; i++) {
+    if (this.order[i].id == id) {
+      this.characterSelection[char.rank] = this.order[i].nickname;
     }
   }
 };
@@ -32,12 +41,8 @@ Game.prototype.getNextPlayer = function () {
     character: char
   };
 };
-Game.prototype.characterSelection = {};
-Game.prototype.selectCharacter = function (id, char) {
-  for (var i = 0, ii = this.order.length; i < ii; i++) {
-    if (this.order[i].id == id) {
-      this.characterSelection[char.rank] = this.order[i].nickname;
-    }
-  }
+Game.prototype.isEnded = function () {
+  return (this.ender != "");
 };
+
 exports.Game = Game;

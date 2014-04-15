@@ -20,20 +20,21 @@ define(["angular"], function (angular) {
 
         $scope.createRoom = function () {
           if (socketData.remoteRooms[$scope.roomName]) {
-            $scope.invalidRoomName = true;
+            $scope.roomExisted = true;
+          } else if ($scope.roomCap != 2) {
+            $scope.not2 = true;
           } else {
-            socket.emit("join room", {roomName: $scope.roomName});
-            $scope.socketData.remoteRooms[$scope.roomName] = {
-              roomName: $scope.roomName,
-              players: {}
-            };
-            $scope.$state.go("lobby", {roomName: $scope.roomName});
+            socket.emit("join room", {roomName: $scope.roomName, roomCap: $scope.roomCap});
           }
         };
 
         $scope.joinRoom = function (roomName) {
-          $scope.socket.emit("join room", {roomName: roomName});
-          $scope.$state.go("lobby", {roomName: roomName});
+          var room = socketData.remoteRooms[roomName];
+          if (Object.keys(room.players).length == room.roomCap) {
+            $scope.roomFull = true;
+          } else {
+            $scope.socket.emit("join room", {roomName: roomName});
+          }
         };
 
         $scope.logout = function () {

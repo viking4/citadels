@@ -8,7 +8,7 @@ define(["angular"], function (angular) {
         var socket = $scope.socket;
         var roomName = $scope.$stateParams.roomName;
         var nickname = socketData.localPlayer.nickname;
-        $scope.players = socketData.remoteRooms[roomName].players;
+
         $scope.gameLog = "This is the game log\n";
         $scope.localPlayer = {
           nickname: nickname,
@@ -28,54 +28,74 @@ define(["angular"], function (angular) {
             this.districtHand.splice(this.districtHand.indexOf(card), 1);
             this.gold -= card.cost;
             $scope.buildCap--;
+            socket.emit("build", {roomName: roomName, card: card});
+          },
+          destroyDistrict: function (card) {
+            this.ownedDistricts.splice(this.ownedDistricts.indexOf(card), 1);
           }
         };
-        $scope.$watch("localPlayer.districtHand", function () {
-          socket.emit("district hand", {roomName: roomName, districtHand: $scope.localPlayer.districtHand});
+        socket.on("build", function (data) {
+          log("Player " + data.nickname + " has built " + data.card.name + ", Type: " + data.card.type + ", Cost: " + data.card.cost);
+        });
+        $scope.$watch("localPlayer.districtHand", function (data) {
+            socket.emit("district hand", {roomName: roomName, districtHand: $scope.localPlayer.districtHand});
         }, true);
-        $scope.$watch("localPlayer.gold", function () {
-          socket.emit("gold", {roomName: roomName, gold: $scope.localPlayer.gold});
+        $scope.$watch("localPlayer.gold", function (data) {
+            socket.emit("gold", {roomName: roomName, gold: $scope.localPlayer.gold});
         }, true);
-        $scope.$watch("localPlayer.ownedDistricts", function () {
-          socket.emit("owned districts", {roomName: roomName, ownedDistricts: $scope.localPlayer.ownedDistricts});
+        $scope.$watch("localPlayer.ownedDistricts", function (data) {
+            socket.emit("owned districts", {roomName: roomName, ownedDistricts: $scope.localPlayer.ownedDistricts});
         }, true);
 
-        socket.on("number of district cards", function (data) {
-          log("Update: Player " + data.nickname + " has " + data.numberOfDistrictCards + " district cards");
-          $scope.players[data.nickname].numberOfDistrictCards = data.numberOfDistrictCards;
-        });
-        socket.on("gold", function (data) {
-          log("Update: Player " + data.nickname + " has " + data.gold + " gold");
-          $scope.players[data.nickname].gold = data.gold;
-        });
-        socket.on("owned districts", function (data) {
-          log("Update: Player " + data.nickname + " owns " + data.ownedDistricts.length + " districts");
-          $scope.players[data.nickname].ownedDistricts = data.ownedDistricts;
-        });
         $scope.start = function () {
-          log("You has started a game.");
-          socket.emit("new game", {roomName: roomName});
+          var room = socketData.remoteRooms[roomName];
+          if (Object.keys(room.players).length   != room.roomCap) {
+            log("Not enough players");
+          } else {
+            log("You has started a game.");
+            socket.emit("new game", {roomName: roomName});
+            $scope.gameStart = true;
+          }
         };
         socket.on("new game", function (data) {
           log("Player " + data.nickname + " has started a game");
           log("You get district cards: " + cardsToString(data.districtHand));
           log("You get " + data.gold + " gold");
           log("The order of players " + orderToString(data.order, data.nickname));
+
+          $scope.players = angular.copy(socketData.remoteRooms[roomName].players);
+          delete $scope.players[nickname];
+
           $scope.localPlayer.gainDistrictHand(data.districtHand);
           $scope.localPlayer.gainGold(data.gold);
           $scope.order = data.order;
           $scope.gameStart = true;
+
+          socket.on("number of district cards", function (data) {
+            $scope.players[data.nickname].numberOfDistrictCards = data.numberOfDistrictCards;
+          });
+          socket.on("gold", function (data) {
+            $scope.players[data.nickname].gold = data.gold;
+          });
+          socket.on("owned districts", function (data) {
+            $scope.players[data.nickname].ownedDistricts = data.ownedDistricts;
+          });
         });
         socket.on("select character", function (data) {
+          $scope.firstRound = false;
+          if (data.firstRound) {
+            log("New round has begun.");
+            $scope.firstRound = true;
+            $scope.characters = [];
+            $scope.bishopNickname = "";
+          }
           if (data.nickname == nickname) {
             log("Player " + nickname + " (You) is choosing characters: " + charactersToString(data.characterDeck));
             $scope.selectCharacter = true;
             $scope.isChoose = true;
-            $scope.firstRound = false;
             $scope.characterDeck = data.characterDeck;
-            if ($scope.characterDeck.length == 8 && Object.keys($scope.players).length == 1) {
+            if ($scope.firstRound && Object.keys($scope.players).length == 1) {
               $scope.characterDeck.pop();
-              $scope.firstRound = true;
             }
           } else {
             log("Player " + data.nickname + " is choosing characters");
@@ -98,15 +118,10 @@ define(["angular"], function (angular) {
           socket.emit("select character", {roomName: roomName, character: choseChar, characterDeck: $scope.characterDeck});
           $scope.selectCharacter = false;
         };
-        $scope.endTurn = function () {
-          log("Your turn has ended");
-          $scope.turnStart = false;
-          $scope.isBuild = false;
-          $scope[$scope.character.name] = false;
-          $scope.murdered = false;
-          socket.emit("play character", {roomName: roomName});
-        };
         socket.on("play character", function (data) {
+          if (data.character.name == "Bishop") {
+            $scope.bishopNickname = data.nickname;
+          }
           if (data.nickname == nickname) {
             log("Player " + nickname + " (You) is playing character: " + data.character.name);
             $scope.character = data.character;
@@ -146,7 +161,7 @@ define(["angular"], function (angular) {
                   gold++;
               }
               if (gold > 0) {
-                log("As " + $scope.characters[rank].name + ", you have gained " + gold + " gold from " + gold + " " + earnDistrictType + " districts");
+                log("As " + $scope.localPlayer.characters[rank].name + ", you have gained " + gold + " gold from " + gold + " " + earnDistrictType + " districts");
                 $scope.localPlayer.gainGold(gold);
               }
             }
@@ -159,9 +174,10 @@ define(["angular"], function (angular) {
                 break;
               case "stolen":
                 log("You have been stolen " + $scope.localPlayer.gold + " gold");
-                socket.emit("stolen", $scope.localPlayer.gold);
+                socket.emit("stolen", {gold: $scope.localPlayer.gold});
                 $scope.localPlayer.gold = 0;
               default :
+                log("starting turn")
                 $scope.turnStart = true;
                 $scope[data.character.name] = true;
                 $scope.isBuild = false;
@@ -211,7 +227,7 @@ define(["angular"], function (angular) {
             log("As " + char.name + ", you will be murdered on your turn");
             $scope.localPlayer.characters[char.rank].status = "murdered";
           } else {
-            log(char.name + " has been murdered");
+            log("The Assassin choost to murder " + char.name);
           }
         });
         $scope.steal = function (char) {
@@ -226,7 +242,7 @@ define(["angular"], function (angular) {
             log("As " + char.name + ", you will stolen at the start of your turn");
             $scope.localPlayer.characters[char.rank].status = "stolen";
           } else {
-            log(char.name + " has been stolen");
+            log("The Thief has stolen from " + char.name);
           }
         });
         $scope.exchange = function (player) {
@@ -253,17 +269,21 @@ define(["angular"], function (angular) {
           }
         });
         $scope.checkNoOfExchangeCards = function () {
-          if ($scope.noOfExchangeCards > 0 && $scope.noOfExchangeCards <= $scope.localPlayer.districtHand.length) {
+          if ($scope.noOfExchangeCards > 0 && $scope.noOfExchangeCards < $scope.localPlayer.districtHand.length) {
             log("You need to choose cards to discard");
             $scope.chooseExchangeCards = true;
             $scope.exchangeCount = 0;
+          } else if ($scope.noOfExchangeCards == $scope.localPlayer.districtHand.length) {
+            $scope.localPlayer.districtHand = [];
+            $scope.exchange();
+            $scope.Magician = false;
+          } else if ($scope.noOfExchangeCards == 0) {
+            log("You skipped exchange");
+            $scope.Magician = false;
           } else {
             log("Invalid number of cards to exchange");
           }
-          if ($scope.noOfExchangeCards == 0) {
-            log("You skipped exchange");
-            $scope.Magician = false;
-          }
+
         };
         $scope.discardCardToExchange = function (card) {
           $scope.localPlayer.districtHand.splice($scope.localPlayer.districtHand.indexOf(card), 1);
@@ -274,6 +294,32 @@ define(["angular"], function (angular) {
             $scope.Magician = false;
           }
         };
+        $scope.destroy = function (player, card) {
+          socket.emit("destroy", {roomName: roomName, player: player, card: card});
+          $scope.Warlord = false;
+        };
+        socket.on("destroy", function (data) {
+          if (data.nickname == nickname) {
+            log("The Warlord has destroyed your district " + data.card.name);
+            $scope.localPlayer.destroyDistrict(data.card);
+          } else {
+            log("The Warlord has destroyed the district " + data.card.name + " of " + data.nickname);
+          }
+        });
+        $scope.endTurn = function () {
+          log("Your turn has ended");
+          $scope.turnStart = false;
+          $scope.isBuild = false;
+          $scope[$scope.character.name] = false;
+          $scope.murdered = false;
+          socket.emit("play character", {roomName: roomName});
+        };
+        socket.on("game end this round", function (data) {
+          log("Player " + data.nickname + " has at least 8 districts. The game will end this round");
+        });
+        socket.on("game end", function (data) {
+          log("The winner is " + data.winner.nickname);
+        });
         $scope.leave = function () {
           socket.emit("leave room", {roomName: roomName});
           delete $scope.players[nickname];

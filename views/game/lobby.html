@@ -3,13 +3,13 @@
 <br>
 Your nickname: {{localPlayer.nickname}} <br>
 Joined Players
-<ul ng-repeat="player in players">
+<ul ng-repeat="player in socketData.remoteRooms[$stateParams.roomName].players">
   <li>{{player.nickname}}</li>
 </ul>
 <br>
 
 <div ng-hide="gameStart">
-  <button ng-click="start(); gameStart = true;">Start</button>
+  <button ng-click="start();">Start</button>
   <button ng-click="leave()">Leave</button>
 </div>
 
@@ -125,7 +125,7 @@ Joined Players
         <td>{{char.name}} </td>
         <td>{{char.rank}} </td>
         <td>
-          <button ng-disabled="char.rank == murderVictim.rank" ng-click="steal(char)">Steal</button>
+          <button ng-hide="char.rank == murderVictim.rank" ng-click="steal(char)">Steal</button>
         </td>
       </tr>
     </table>
@@ -162,19 +162,19 @@ Joined Players
       </tr>
     </table>
   </div>
-  <div ng-show="rank4">
+  <div ng-show="King">
     King
   </div>
-  <div ng-show="rank5">
+  <div ng-show="Bishop">
     Bishop
   </div>
-  <div ng-show="rank6">
+  <div ng-show="Merchant">
     Merchant
   </div>
-  <div ng-show="rank7">
-    Architecture
+  <div ng-show="Architect">
+    Architect
   </div>
-  <div ng-show="rank8">
+  <div ng-show="Warlord">
     Warlord
   </div>
   </div>
@@ -194,6 +194,7 @@ Joined Players
         <td>{{card.name}} </td>
         <td>{{card.type}} </td>
         <td>{{card.cost}} </td>
+        <td><button ng-show="Warlord && localPlayer.gold >= (card.cost-1) && player.nickname != bishopNickname && player.ownedDistricts.length < 8" ng-click="destroy(player, card)">Destroy</button></td>
       </tr>
     </table>
   </div>
