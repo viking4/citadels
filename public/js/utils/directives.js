@@ -13,5 +13,14 @@ define(["angular"], function (angular) {
       return function (scope, element) {
         element[0].focus();
       };
-    });;
+    })
+    .directive('autoscrollbottom', function () {
+      return function (scope, element) {
+        scope.$watch(function () {
+          return element[0].value;
+        }, function () {
+          element[0].scrollTop = element[0].scrollHeight;
+        });
+      };
+    });
 });
