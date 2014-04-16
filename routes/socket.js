@@ -24,7 +24,9 @@ module.exports = function(io) {
     client.on("new game", onNewGame);
     client.on("select character", onSelectCharacter);
     client.on("play character", onPlayCharacter);
-    client.on("draw district cards", onDrawDistrictCards);
+    client.on("take two gold", onTakeTwoGold);
+    client.on("draw two cards", onDrawTwoCards);
+    client.on("choose one discard one", onChooseOneDiscardOne);
     client.on("build", onBuild);
 
     client.on("murder", onMurder);
@@ -178,9 +180,19 @@ module.exports = function(io) {
         delete games[data.roomName];
       }
     }
-    function onDrawDistrictCards (data) {
+    function onTakeTwoGold (data) {
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("take two gold", {nickname: player.nickname});
+    }
+    function onDrawTwoCards (data) {
       var cards = games[data.roomName].districtDeck.draw(data.draw);
-      this.emit("draw district cards", cards);
+      var player = playerById(this.id);
+      this.emit("draw two cards", {cards: cards});
+      this.broadcast.to(data.roomName).emit("draw two cards", {nickname: player.nickname})
+    }
+    function onChooseOneDiscardOne (data) {
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("choose one discard one", {nickname: player.nickname});
     }
     function onBuild (data) {
       this.broadcast.to(data.roomName).emit("build", {nickname: playerById(this.id).nickname, card: data.card});

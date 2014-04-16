@@ -11,6 +11,7 @@
 
 <br>
 <br>
+<div ng-hide="gameStart">
 Your nickname: {{localPlayer.nickname}} <br>
 Joined Players
 <ul ng-repeat="player in socketData.remoteRooms[$stateParams.roomName].players">
@@ -18,7 +19,6 @@ Joined Players
 </ul>
 <br>
 
-<div ng-hide="gameStart">
   <button ng-click="start();" class="btn btn-primary">Start</button>
   <button ng-click="leave()" class="btn btn-warning">Leave</button>
 </div>
@@ -79,7 +79,7 @@ Joined Players
     </table>
   </div>
   <div ng-hide="isBuild || !turnStart">
-    <button ng-click="getTwoGold()" ng-hide="hideTwoGold" class="btn btn-primary">Take two golds</button>
+    <button ng-click="takeTwoGold()" ng-hide="hideTwoGold" class="btn btn-primary">Take two golds</button>
     <button ng-click="drawTwoCards(); hideTwoGold = true; chooseOne = true;" ng-hide="chooseOne" class="btn btn-success">Draw two district cards, then discard one</button>
     <table class="table" style="width: 300px" ng-show="chooseOne">
       <tr>
@@ -115,7 +115,7 @@ Joined Players
           <td>{{char.name}} </td>
           <td>{{char.rank}} </td>
           <td>
-            <button ng-click="murder(char)" class="btn btn-danger btn-sm">Murder</button>
+            <button ng-hide="localPlayer.characters[char.rank]" ng-click="murder(char)" class="btn btn-danger btn-sm">Murder</button>
           </td>
         </tr>
       </table>

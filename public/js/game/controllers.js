@@ -118,14 +118,15 @@ define(["angular"], function (angular) {
           choseChar = $scope.characterDeck.splice($scope.characterDeck.indexOf(char), 1)[0];
           $scope.localPlayer.characters[char.rank] = char;
           if ($scope.firstRound) {
+            log("Remaining characters: " + charactersToString($scope.characterDeck));
             socket.emit("select character", {roomName: roomName, character: char, characterDeck: $scope.characterDeck});
             $scope.selectCharacter = false;
           }
           $scope.isChoose = false;
         };
         $scope.discardCharacter = function (char) {
-          log("You have discarded " + char.name);
           $scope.characterDeck.splice($scope.characterDeck.indexOf(char), 1)[0];
+          log("You have discarded " + char.name + ". Remaining characters: " + charactersToString($scope.characterDeck));
           socket.emit("select character", {roomName: roomName, character: choseChar, characterDeck: $scope.characterDeck});
           $scope.selectCharacter = false;
         };
@@ -149,7 +150,7 @@ define(["angular"], function (angular) {
                 socket.emit("stolen", {gold: $scope.localPlayer.gold});
                 $scope.localPlayer.gold = 0;
               default :
-                log("starting turn");
+                log("Starting your turn as the " + data.character.name);
                 $scope.turnStart = true;
                 $scope[data.character.name] = true;
                 $scope.hideTwoGold = false;
@@ -183,12 +184,15 @@ define(["angular"], function (angular) {
                   gold++;
               }
               if (gold > 0) {
-                log("As " + $scope.localPlayer.characters[rank].name + ", you have gained " + gold + " gold from " + gold + " " + earnDistrictType + " districts");
+                log("As the " + $scope.localPlayer.characters[rank].name + ", you have gained " + gold + " gold from " + gold + " " + earnDistrictType + " districts");
                 $scope.localPlayer.gainGold(gold);
               }
             }
           } else {
             log("Player " + data.nickname + " is playing " + data.character.name);
+            if ($scope.murderVictim && $scope.murderVictim.rank == data.character.rank) {
+              log("The " + data.character.name + " has been murdered");
+            }
           }
         });
         socket.on("stolen", function (gold) {
@@ -200,7 +204,7 @@ define(["angular"], function (angular) {
         function checkAfterAction() {
           switch ($scope.localPlayer.currCharacter.rank) {
             case 6:
-              log("As Merchant, you have gained one gold after taking an action");
+              log("As the Merchant, you have gained one gold after taking an action");
               $scope.localPlayer.gainGold(1);
               break;
             case 7:
@@ -215,25 +219,38 @@ define(["angular"], function (angular) {
         socket.on("architect draw log", function (nickname) {
           log("Player " + nickname + " the Architect got two cards after taking a action");
         });
-        $scope.getTwoGold = function () {
+        $scope.takeTwoGold = function () {
           $scope.localPlayer.gainGold(2);
           $scope.isBuild = true;
+          log("You choose to take two gold");
+          socket.emit("take two gold", {roomName: roomName});
           checkAfterAction();
         };
+        socket.on("take two gold", function (data) {
+          log("Player " + data.nickname + " took two gold from the bank");
+        });
         $scope.drawTwoCards = function () {
           log("You choose to draw two cards");
-          socket.emit("draw district cards", {roomName: roomName, draw: 2});
+          socket.emit("draw two cards", {roomName: roomName, draw: 2});
         };
         $scope.chooseOneCard = function (card) {
+          log("You choose the card " + card.name + ", discarded the other card");
+          socket.emit("choose one discard one", {roomName: roomName});
           $scope.localPlayer.gainDistrictHand([card]);
           $scope.isBuild = true;
           checkAfterAction();
         };
-        socket.on("draw district cards", function (cards) {
-          log("You have drawn " + cards.length + " district cards: " + cardsToString(cards));
-          $scope.chooseDiscardCards = cards;
+        socket.on("draw two cards", function (data) {
+          if (data.nickname) {
+            log("Player " + data.nickname + "drew two cards from the deck");
+          } else if (data.cards) {
+            log("You have drawn two district cards: " + cardsToString(data.cards));
+            $scope.chooseDiscardCards = data.cards;
+          }
         });
-
+        socket.on("choose one discard one", function (data) {
+          log("Player " + data.nickname + " chose one card and discard the other one");
+        });
         $scope.murder = function (char) {
           if (char.rank > 0) {
             log("You choose to murder " + char.name);
@@ -244,7 +261,7 @@ define(["angular"], function (angular) {
         socket.on("murder", function (char) {
           $scope.murderVictim = char;
           if ($scope.localPlayer.characters[char.rank]) {
-            log("As " + char.name + ", you will be murdered on your turn");
+            log("As the " + char.name + ", you will be murdered on your turn");
             $scope.localPlayer.characters[char.rank].status = "murdered";
           } else {
             log("The Assassin chooses to murder " + char.name);
@@ -259,7 +276,7 @@ define(["angular"], function (angular) {
         };
         socket.on("steal", function (char) {
           if ($scope.localPlayer.characters[char.rank]) {
-            log("As " + char.name + ", you will stolen at the start of your turn");
+            log("As the " + char.name + ", you will stolen at the start of your turn");
             $scope.localPlayer.characters[char.rank].status = "stolen";
           } else {
             log("The Thief has stolen from " + char.name);
