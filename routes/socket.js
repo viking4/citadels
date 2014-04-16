@@ -36,6 +36,8 @@ module.exports = function(io) {
     client.on("architect draw", onArchitectDraw);
     client.on("destroy", onDestroy);
 
+    client.on("haunted city", onHauntedCity);
+
     client.on("gold", onGold);
     client.on("owned districts", onOwnedDistricts);
     client.on("district hand", onDistrictHand);
@@ -150,34 +152,20 @@ module.exports = function(io) {
         this.emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck, firstRound: true});
         this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck, firstRound: true});
       } else {
+        // find Haunted City
         var roster = io.sockets.clients(data.roomName);
-        var winner = {totalPoints: 0};
-        var final = [];
         for (var i = 0, ii = roster.length; i < ii; i++) {
           var player = playerById(roster[i].id);
-          var types = ["Noble", "Religious", "Trade", "Military", "Special"];
-          for (var j = 0, jj = player.ownedDistricts.length; j < jj; j++) {
-            player.districtPoints += player.ownedDistricts[j].cost;
-            types.slice(types.indexOf(player.ownedDistricts[j].type), 1);
-          }
-          if (types.length == 0)
-            player.fiveColorPoints = 3;
-          if (player.nickname == game.ender) {
-            player.enderPoints = 4;
-          } else if (player.ownedDistricts.length >= 8) {
-            player.eightDistrictPoints = 2;
-          }
-          player.totalPoints = player.districtPoints + player.fiveColorPoints + player.enderPoints + player.eightDistrictPoints;
-          final.push(player);
-          if (player.totalPoints > winner.totalPoints ||
-            player.totalPoints == winner.totalPoints && player.districtPoints > winner.districtPoints ||
-            player.totalPoints == winner.totalPoints && player.districtPoints == winner.districtPoints && player.gold > winner.gold) {
-              winner = player;
+          var hauntedCity = player.ownedCardByName("Haunted City");
+          if (hauntedCity && hauntedCity.active) {
+            this.emit("haunted city", {nickname: player.nickname});
+            this.broadcast.to(data.roomName).emit("haunted city", {nickname: player.nickname});
+            break;
           }
         }
-        this.emit("game end", {winner: winner, final: final});
-        this.broadcast.to(data.roomName).emit("game end", {winner: winner, final: final});
-        delete games[data.roomName];
+        if (i == ii) {
+          onHauntedCity.call(this, data);
+        }
       }
     }
     function onTakeTwoGold (data) {
@@ -226,6 +214,52 @@ module.exports = function(io) {
       this.broadcast.to(data.roomName).emit("destroy", {nickname: data.player.nickname, card: data.card});
     }
 
+    function onHauntedCity(data) {
+      if (data.type) {
+        this.broadcast.to(data.roomName).emit("haunted city done", {type: data.type});
+      }
+      var game = games[data.roomName];
+      var roster = io.sockets.clients(data.roomName);
+      var winner = {totalPoints: 0};
+      var final = [];
+      for (var i = 0, ii = roster.length; i < ii; i++) {
+        var player = playerById(roster[i].id);
+        var types = ["Noble", "Religious", "Trade", "Military", "Special"];
+        for (var j = 0, jj = player.ownedDistricts.length; j < jj; j++) {
+          player.districtPoints += player.ownedDistricts[j].cost;
+          if (player.ownedDistricts[j].name == "Haunted City") {
+            player.ownedDistricts[j].type = data.type.type;
+          }
+          var index = types.indexOf(player.ownedDistricts[j].type);
+          if (index != -1) {
+            var t = types.splice(index, 1);
+            util.log(player.nickname + " GOT TYPE: " + t + "----------------")
+          }
+        }
+        if (types.length == 0) {
+          player.fiveColorPoints = 3;
+          util.log(player.nickname + " GOT FIVE COLOR BONUS");
+        }
+        if (player.nickname == game.ender) {
+          player.enderPoints = 4;
+          util.log(player.nickname + " GOT ENDER BONUS");
+        } else if (player.ownedDistricts.length >= 8) {
+          util.log(player.nickname + " GOT FINISHER BONUS");
+          player.eightDistrictPoints = 2;
+        }
+        player.totalPoints = player.districtPoints + player.fiveColorPoints + player.enderPoints + player.eightDistrictPoints;
+        final.push(player);
+        if (player.totalPoints > winner.totalPoints ||
+          player.totalPoints == winner.totalPoints && player.districtPoints > winner.districtPoints ||
+          player.totalPoints == winner.totalPoints && player.districtPoints == winner.districtPoints && player.gold > winner.gold) {
+          winner = player;
+        }
+      }
+      this.emit("game end", {winner: winner, final: final});
+      this.broadcast.to(data.roomName).emit("game end", {winner: winner, final: final});
+      delete games[data.roomName];
+    }
+
     function onGold (data) {
       var player = playerById(this.id);
       if (player) {
@@ -246,7 +280,7 @@ module.exports = function(io) {
         player.setOwnedDistricts(data.ownedDistricts);
         this.broadcast.to(data.roomName).emit("owned districts", {nickname: player.nickname, ownedDistricts: data.ownedDistricts});
         var game = games[data.roomName];
-        if (data.ownedDistricts.length >= 8 && !game.isEnded()) {
+        if (game && data.ownedDistricts.length >= 8 && !game.isEnded()) {
           game.ender = player;
           this.emit("game end this round", {nickname: player.nickname});
           this.broadcast.to(data.roomName).emit("game end this round", {nickname: player.nickname});

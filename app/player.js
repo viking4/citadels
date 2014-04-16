@@ -7,7 +7,7 @@ function Player(id, name) {
   this.gold = 0;
   this.ownedDistricts = [];
   this.districtHand = [];
-  this.ownedDistricts = [];
+
   this.districtPoints = 0;
   this.fiveColorPoints = 0;
   this.enderPoints = 0;
@@ -25,6 +25,14 @@ Player.prototype.setDistrictHand = function (cards) {
 };
 Player.prototype.setOwnedDistricts = function (districts) {
   this.ownedDistricts = districts;
+};
+Player.prototype.ownedCardByName = function (name) {
+  for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
+    if (this.ownedDistricts[i].name == name) {
+      return this.ownedDistricts[i];
+    }
+  }
+  return false;
 };
 
 // Export the Player class so you can use it in

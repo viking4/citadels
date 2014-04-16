@@ -1,12 +1,21 @@
 var districtDeckArray = [];
 
-function addDistrictCard(quantity, name, type, cost) {
+function addDistrictCard(quantity, name, type, cost, description) {
   for (var i = 0; i < quantity; i++) {
-    districtDeckArray.push({
-      name: name,
-      type: type,
-      cost: cost
-    })
+    if (description) {
+      districtDeckArray.push({
+        name: name,
+        type: type,
+        cost: cost,
+        description: description
+      })
+    } else {
+      districtDeckArray.push({
+        name: name,
+        type: type,
+        cost: cost
+      })
+    }
   }
 }
 
@@ -27,6 +36,8 @@ addDistrictCard(2, 'Fortress', 'Military', 5);
 addDistrictCard(5, 'Manor', 'Noble', 3);
 addDistrictCard(4, 'Castle', 'Noble', 4);
 addDistrictCard(3, 'Palace', 'Noble', 5);
+
+addDistrictCard(1, 'Haunted City', 'Special', 2, 'For purposes of victory points, the Haunted City is considered to be of the color of your choice. You cannot use this ability if you built it during the last round of the game.');
 
 var characterDeckArray = [];
 

@@ -213,3 +213,24 @@ Joined Players
     </table>
   </div>
 </div>
+<div ng-show="HauntedCity" ng-init="hauntedCityTypes = [
+    {type: 'Noble', color: 'Yellow'},
+    {type: 'Religious', color: 'Blue'},
+    {type: 'Trade', color: 'Green'},
+    {type: 'Military', color: 'Red'},
+    {type: 'Special', color: 'Purple'},
+  ]">
+  Choose color for your Haunted City <br>
+  <table class="table" style="width: 300px">
+    <th>Type </th>
+    <th>Color </th>
+    <th></th>
+    <tr ng-repeat="type in hauntedCityTypes">
+      <td>{{type.type}} </td>
+      <td>{{type.color}} </td>
+      <td>
+        <button ng-click="chooseHauntedCity(type)" class="btn btn-warning btn-sm">Choose</button>
+      </td>
+    </tr>
+  </table>
+</div>

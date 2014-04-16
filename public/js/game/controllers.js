@@ -24,6 +24,7 @@ define(["angular"], function (angular) {
         $scope.localPlayer = {
           nickname: nickname,
           characters: {},
+          currCharacter: {},
           gold: 0,
           districtHand: [],
           ownedDistricts: [],
@@ -42,7 +43,16 @@ define(["angular"], function (angular) {
             socket.emit("build", {roomName: roomName, card: card});
           },
           destroyDistrict: function (card) {
-            this.ownedDistricts.splice(this.ownedDistricts.indexOf(card), 1);
+            var index = this.ownedDistricts.indexOf(card);
+            if (index != -1)
+              this.ownedDistricts.splice(index, 1);
+          },
+          setHauntedCityAttr: function (attr, value) {
+            for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
+              if (this.ownedDistricts[i].name == "Haunted City") {
+                this.ownedDistricts[i][attr] = value;
+              }
+            }
           }
         };
         socket.on("build", function (data) {
@@ -99,6 +109,7 @@ define(["angular"], function (angular) {
             $scope.firstRound = true;
             $scope.localPlayer.characters = {};
             $scope.bishopNickname = "";
+            $scope.localPlayer.setHauntedCityAttr("value", true);
           }
           if (data.nickname == nickname) {
             log("Player " + nickname + " (You) is choosing characters: " + charactersToString(data.characterDeck));
@@ -112,10 +123,10 @@ define(["angular"], function (angular) {
             log("Player " + data.nickname + " is choosing characters");
           }
         });
-        var choseChar;
+        var chosenChar;
         $scope.chooseCharacter = function (char) {
           log("You have chosen " + char.name);
-          choseChar = $scope.characterDeck.splice($scope.characterDeck.indexOf(char), 1)[0];
+          chosenChar = $scope.characterDeck.splice($scope.characterDeck.indexOf(char), 1)[0];
           $scope.localPlayer.characters[char.rank] = char;
           if ($scope.firstRound) {
             log("Remaining characters: " + charactersToString($scope.characterDeck));
@@ -127,7 +138,7 @@ define(["angular"], function (angular) {
         $scope.discardCharacter = function (char) {
           $scope.characterDeck.splice($scope.characterDeck.indexOf(char), 1)[0];
           log("You have discarded " + char.name + ". Remaining characters: " + charactersToString($scope.characterDeck));
-          socket.emit("select character", {roomName: roomName, character: choseChar, characterDeck: $scope.characterDeck});
+          socket.emit("select character", {roomName: roomName, character: chosenChar, characterDeck: $scope.characterDeck});
           $scope.selectCharacter = false;
         };
         socket.on("play character", function (data) {
@@ -358,6 +369,23 @@ define(["angular"], function (angular) {
         });
         socket.on("game end", function (data) {
           log("The winner is " + data.winner.nickname);
+        });
+        socket.on("haunted city", function (data) {
+          if (data.nickname == nickname) {
+            $scope.HauntedCity = true;
+            log("You own Haunted City, it's your turn to choose its color.")
+          } else {
+            log("Player " + data.nickname + " who owns Haunted City is choosing its color.")
+          }
+        });
+        $scope.chooseHauntedCity = function (type) {
+          $scope.localPlayer.setHauntedCityAttr("type", type.type);
+          socket.emit("haunted city", {roomName: roomName, type: type});
+          $scope.HauntedCity = false;
+          log("Your haunted city's type is " + type.type + " with color " + type.color);
+        };
+        socket.on("haunted city done", function (data) {
+          log("The haunted city's type is " + data.type.type + " with color " + data.type.color);
         });
         $scope.leave = function () {
           playersWatch();
