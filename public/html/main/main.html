@@ -1,14 +1,14 @@
-<form ng-hide="socketData.localPlayer.nickname != '' || !socketData.socketConnected" ng-submit="createPlayer()">
+<form ng-hide="app.player.nickname != '' || !app.socketConnected" ng-submit="createPlayer()">
   <input type="text" placeholder="Player name" ng-model="nickname" autofocus>
   <button type="submit" class="btn btn-sm btn-primary">Create Player</button>
   <span ng-show="invalidNickname">Nickname existed!</span><br>
   <br>
 </form>
-<div ng-show="socketData.localPlayer.nickname != ''">
-  Welcome, {{socketData.localPlayer.nickname}}! <br>
+<div ng-show="app.player.nickname != ''">
+  Welcome, {{app.player.nickname}}! <br>
 
   Player List</span>
-  <ul ng-repeat="player in socketData.remotePlayers">
+  <ul ng-repeat="player in app.remotePlayers">
     <li>{{player.nickname}}</li>
   </ul>
   <form ng-submit="createRoom()">
@@ -20,7 +20,7 @@
   <span ng-show="not2">Only support two-player game right now</span><br>
 
   Room List <br></span>
-  <ul ng-repeat="room in socketData.remoteRooms">
+  <ul ng-repeat="room in app.remoteRooms">
     <li>{{room.roomName}}<button ng-click="joinRoom(room.roomName)" class="btn btn-info btn-sm">Join</button>{{room.numberOfPlayers}}/{{room.roomCap}}</li>
   </ul>
   <br><span ng-show="roomFull">Room is full</span>

@@ -1,0 +1,27 @@
+<div>
+  <h3>Other Players</h3>
+  <div ng-repeat="player in game.players">
+    Nickname: {{player.nickname}} <br>
+    Gold {{player.gold}} <br>
+    Number of District Cards {{player.numberOfDistrictCards}} cards <br>
+    Owned Districts
+    <table class="table" style="width: 300px">
+      <tr>
+        <th>Name </th>
+        <th>Type </th>
+        <th>Cost </th>
+      </tr>
+      <tr ng-repeat="card in player.ownedDistricts" >
+        <td>{{card.name}} </td>
+        <td>{{card.type}} </td>
+        <td>{{card.cost}} </td>
+        <td>
+          <button ng-show="game.onTurn && game.Warlord &&
+                           game.gold >= (card.cost-1) &&
+                           player.nickname != game.bishopNickname &&
+                           player.ownedDistricts.length < 8" ng-click="destroy(player, card)" class="btn btn-danger">Destroy</button>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

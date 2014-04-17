@@ -1,0 +1,15 @@
+<div ng-show="game.Thief">
+  Thief <br>
+  <table class="table" style="width: 300px">
+    <th>Name </th>
+    <th>Rank </th>
+    <th></th>
+    <tr ng-repeat="char in targets">
+      <td>{{char.name}} </td>
+      <td>{{char.rank}} </td>
+      <td>
+        <button ng-hide="game.characters[char.rank] || game.murderVictim.rank == char.rank" ng-click="steal(char)" class="btn btn-warning btn-sm">Steal</button>
+      </td>
+    </tr>
+  </table>
+</div>

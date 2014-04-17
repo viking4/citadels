@@ -27,12 +27,10 @@ if (app.get('env') === 'production') {
 }
 
 app.get('/', routes.index);
-app.get('/main/:name', routes.main);
-app.get('/game/:name', routes.game);
 
 app.get('*', routes.index);
 
-require('./routes/socket')(io);
+require('./app/socket')(io);
 
 server.listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));

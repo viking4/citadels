@@ -1,0 +1,32 @@
+<div ng-show="game.Magician">
+  <table class="table" style="width: 300px" ng-hide="chooseExchangeCards">
+    <th>Player </th>
+    <th>No. of cards </th>
+    <th></th>
+    <tr>
+      <td>Deck</td>
+      <td><input type="number" ng-model="noOfExchangeCards"></td>
+      <td><button ng-click="checkNoOfExchangeCards()" class="btn btn-info">Exchange</button></td>
+    </tr>
+    <tr ng-repeat="player in game.players" >
+      <td>{{player.nickname}} </td>
+      <td>{{player.numberOfDistrictCards}} </td>
+      <td>
+        <button ng-click="exchange(player)" class="btn btn-info">Exchange</button>
+      </td>
+    </tr>
+  </table>
+  <table class="table" style="width: 300px" ng-show="chooseExchangeCards">
+    <tr>
+      <th>Name </th>
+      <th>Type </th>
+      <th>Cost </th>
+    </tr>
+    <tr ng-repeat="card in game.districtHand track by $index" >
+      <td>{{card.name}} </td>
+      <td>{{card.type}} </td>
+      <td>{{card.cost}} </td>
+      <td><button ng-click="discardCardToExchange(card)" class="btn btn-warning"> Discard </button> </td>
+    </tr>
+  </table>
+</div>

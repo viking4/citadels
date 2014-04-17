@@ -14,7 +14,7 @@ require.config({
   },
   paths: {
     "angular": "../bower_components/angular/angular",
-    "btford.socket-io": "../bower_components/angular-socket-io/socket",
+    "btford.socket-io": "lib/socket",
     "socket.io": "/socket.io/socket.io",
     "ui-router": "../bower_components/angular-ui-router/release/angular-ui-router"
   },

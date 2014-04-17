@@ -7,20 +7,77 @@ define(["angular", "btford.socket-io"], function (angular) {
         ioSocket: io.connect("http://localhost", {port: 5000, transports: ["websocket"]})
       });
     }])
-    .factory("socketData", function () {
-      var data = {
+    .factory("appFactory", function () {
+      return  {
         socketConnected: false,
-        reset:  function () {
+        player: {
+          nickname: ""
+        },
+        remotePlayers: {},
+        remoteRooms: {}
+      };
+    })
+    .factory("gameFactory", ["$filter", function ($filter) {
+      return {
+        init: function (nickname, roomName, roomCap) {
           angular.extend(this, {
-            localPlayer: {
-              nickname: ""
-            },
-            remotePlayers: {},
-            remoteRooms: {}
-          });
+            gameLog: "This is the game log.\n",
+            roomName: roomName,
+            nickname: nickname,
+            characters: {},
+            currentCharacter: {},
+            gold: 0,
+            districtHand: [],
+            ownedDistricts: [],
+            onTurn: false,
+            buildCap: 1,
+            buildTurn: false,
+            murderVictim: {},
+            bishopHolder: "",
+            players: {},
+            order: [],
+            roomCap: roomCap
+          })
+        },
+        log: function log(str) {
+          this.gameLog += $filter('date')(new Date(), 'mediumTime') + ": " + str + "\n";
+        },
+        gainGold: function (gold) {
+          this.gold += gold;
+        },
+        gainDistrictHand: function (cards) {
+          this.districtHand = this.districtHand.concat(cards);
+        },
+        buildDistrict: function (card) {
+          this.ownedDistricts.push(card);
+          this.districtHand.splice(this.districtHand.indexOf(card), 1);
+          this.gold -= card.cost;
+          this.buildCap--;
+        },
+        destroyDistrict: function (card) {
+          var index = this.ownedDistricts.indexOf(card);
+          if (index != -1)
+            this.ownedDistricts.splice(index, 1);
+        },
+        setHauntedCityAttr: function (attr, value) {
+          for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
+            if (this.ownedDistricts[i].name == "Haunted City") {
+              this.ownedDistricts[i][attr] = value;
+            }
+          }
+        },
+        charsToString: function  (chars) {
+          for (var i = 0, ii = chars.length, str = ""; i < ii; i++) {
+            str += chars[i].name + ", ";
+          }
+          return str.slice(0, -2);
+        },
+        cardsToString: function (cards) {
+          for (var i = 0, ii = cards.length, str = ""; i < ii; i++) {
+            str += cards[i].name + ", ";
+          }
+          return str.slice(0, -2);
         }
       };
-      data.reset();
-      return data;
-    })
+    }])
 });

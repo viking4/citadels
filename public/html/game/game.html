@@ -1,0 +1,41 @@
+<div ui-view="log"></div>
+
+<div ng-hide="gameStart">
+Your nickname: {{game.nickname}} <br>
+Joined Players
+<ul ng-repeat="player in app.remoteRooms[$stateParams.roomName].players">
+  <li>{{player.nickname}}</li>
+</ul>
+<br>
+  <button ng-click="start();" class="btn btn-primary">Start</button>
+  <button ng-click="leave()" class="btn btn-warning">Leave</button>
+</div>
+
+<div ng-show="gameStart">
+  <button ng-click="endTurn()" ng-show="game.onTurn || murdered" class="btn btn-success"> End Turn</button>
+
+  <div ui-view="characters"></div>
+  <div ui-view="owned-districts"></div>
+  <div ui-view="basic-actions"></div>
+
+  <div ng-show="game.onTurn">
+    <div ui-view="assassin"></div>
+    <div ui-view="thief"></div>
+    <div ui-view="magician"></div>
+    <div ng-show="game.King">
+      King
+    </div>
+    <div ng-show="game.Bishop">
+      Bishop
+    </div>
+    <div ng-show="game.Merchant">
+      Merchant
+    </div>
+    <div ng-show="game.Architect">
+      Architect
+    </div>
+  </div>
+
+  <div ui-view="warlord"></div>
+</div>
+<div ui-view="haunted-city"></div>

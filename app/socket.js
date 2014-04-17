@@ -2,8 +2,8 @@
  * Serve content over a socket
  */
 var util = require("util"),	// Utility resources (logging, object inspection, etc)
-  Player = require("../app/player").Player,
-  Game = require("../app/game").Game;
+  Player = require("./player").Player,
+  Game = require("./game").Game;
 
 module.exports = function(io) {
   var players = {}, games = {}, rooms = {};
@@ -24,16 +24,18 @@ module.exports = function(io) {
     client.on("new game", onNewGame);
     client.on("select character", onSelectCharacter);
     client.on("play character", onPlayCharacter);
+    client.on("gold character", onGoldCharacter);
     client.on("take two gold", onTakeTwoGold);
     client.on("draw two cards", onDrawTwoCards);
-    client.on("choose one discard one", onChooseOneDiscardOne);
+    client.on("choose one", onChooseOne);
+    client.on("gold merchant", onGoldMerchant);
     client.on("build", onBuild);
 
     client.on("murder", onMurder);
     client.on("steal", onSteal);
     client.on("stolen", onStolen);
     client.on("exchange", onExchange);
-    client.on("architect draw", onArchitectDraw);
+    client.on("draw architect", onDrawArchitect);
     client.on("destroy", onDestroy);
 
     client.on("haunted city", onHauntedCity);
@@ -122,16 +124,16 @@ module.exports = function(io) {
         roster[i].emit("new game", {nickname: hostPlayer.nickname, gold: 2, districtHand: cards, order: order});
       }
       game.characterDeck.shuffle();
-      this.emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck, firstRound: true});
-      this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, firstRound: true});
+      this.emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck, newRound: true});
+      this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, newRound: true});
       games[data.roomName] = game;
     }
     function onSelectCharacter (data) {
       var game = games[data.roomName];
       game.selectCharacter(this.id, data.character);
-      if (data.characterDeck.length > 0) {
+      if (data.characterCards.length > 0) {
         this.emit("select character", {nickname: game.playerAfter(this.id)});
-        this.broadcast.to(data.roomName).emit("select character", {nickname: game.playerAfter(this.id), characterDeck: data.characterDeck});
+        this.broadcast.to(data.roomName).emit("select character", {nickname: game.playerAfter(this.id), characterCards: data.characterCards});
       } else {
         var nextPlayer = game.getNextPlayer();
         this.emit("play character", nextPlayer);
@@ -149,8 +151,8 @@ module.exports = function(io) {
         }
       } else if (!game.isEnded()){
         game.characterDeck.shuffle();
-        this.emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck, firstRound: true});
-        this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterDeck: game.characterDeck.deck, firstRound: true});
+        this.emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck, newRound: true});
+        this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck, newRound: true});
       } else {
         // find Haunted City
         var roster = io.sockets.clients(data.roomName);
@@ -168,47 +170,72 @@ module.exports = function(io) {
         }
       }
     }
+    function onGoldCharacter (data) {
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("gold character", {nickname: player.nickname, character: data.character, gold: data.gold});
+    }
     function onTakeTwoGold (data) {
       var player = playerById(this.id);
       this.broadcast.to(data.roomName).emit("take two gold", {nickname: player.nickname});
     }
     function onDrawTwoCards (data) {
-      var cards = games[data.roomName].districtDeck.draw(data.draw);
+      var cards = games[data.roomName].districtDeck.draw(2);
       var player = playerById(this.id);
-      this.emit("draw two cards", {cards: cards});
+      this.emit("draw two cards", {nickname: player.nickname, cards: cards});
       this.broadcast.to(data.roomName).emit("draw two cards", {nickname: player.nickname})
     }
-    function onChooseOneDiscardOne (data) {
+    function onChooseOne (data) {
       var player = playerById(this.id);
-      this.broadcast.to(data.roomName).emit("choose one discard one", {nickname: player.nickname});
+      this.broadcast.to(data.roomName).emit("choose one", {nickname: player.nickname});
+    }
+    function onGoldMerchant (data) {
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("gold merchant", {nickname: player.nickname});
     }
     function onBuild (data) {
       this.broadcast.to(data.roomName).emit("build", {nickname: playerById(this.id).nickname, card: data.card});
     }
     function onMurder (data) {
-      this.broadcast.to(data.roomName).emit("murder", data.character);
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("murder", {nickname: player.nickname, character: data.character});
     }
     function onSteal (data) {
-      this.broadcast.to(data.roomName).emit("steal", data.character);
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("steal", {nickname: player.nickname, character: data.character});
     }
     function onStolen (data) {
-      this.broadcast.to(data.roomName).emit("stolen", data.gold);
+      var player = playerById(this.id);
+      this.emit("stolen", {nickname: player.nickname, gold: data.gold});
+      this.broadcast.to(data.roomName).emit("stolen", {nickname: player.nickname, gold: data.gold});
     }
     function onExchange (data) {
+      var exchanger = playerById(this.id);
+
       if (data.player) {
-        var exchangePlayer = playerById(this.id);
-        var exchangedPlayer = playerById(data.player.id);
-        this.emit("exchange", exchangedPlayer.districtHand);
-        this.broadcast.to(data.roomName).emit("exchanged", {nickname: data.player.nickname, cards: exchangePlayer.districtHand});
+        var exchangee = playerById(data.player.id);
+        var exchangerRes = {
+          nickname: exchanger.nickname,
+          cards: exchangee.districtHand
+        };
+        var exchangeeRes = {
+          nickname: exchangee.nickname,
+          cards: exchanger.districtHand
+        };
+        this.broadcast.to(data.roomName).emit("exchange", {exchanger: exchangerRes, exchangee: exchangeeRes});
+        this.emit("exchange", {exchanger: exchangerRes, exchangee: exchangeeRes});
       } else {
-        var cards = games[data.roomName].districtDeck.draw(data.noOfExchangeCards);
-        this.emit("exchange", cards);
+        var exchangerRes = {
+          nickname: exchanger.nickname,
+          cards: games[data.roomName].districtDeck.draw(data.noOfExchangeCards)
+        };
+        this.emit("exchange", {exchanger: exchangerRes});
       }
     }
-    function onArchitectDraw (data) {
+    function onDrawArchitect (data) {
       var cards = games[data.roomName].districtDeck.draw(2);
-      this.emit("architect draw", cards);
-      this.broadcast.to(data.roomName).emit("architect draw log", playerById(this.id).nickname);
+      var nickname = playerById(this.id).nickname;
+      this.emit("draw architect", {nickname: nickname, cards: cards});
+      this.broadcast.to(data.roomName).emit("draw architect", {nickname: nickname});
     }
     function onDestroy (data) {
       this.broadcast.to(data.roomName).emit("destroy", {nickname: data.player.nickname, card: data.card});
@@ -264,21 +291,18 @@ module.exports = function(io) {
       var player = playerById(this.id);
       if (player) {
         player.setGold(data.gold);
-        this.broadcast.to(data.roomName).emit("gold", {nickname: player.nickname, gold: player.gold})
       }
     }
     function onDistrictHand (data) {
       var player = playerById(this.id);
       if (player) {
         player.setDistrictHand(data.districtHand);
-        this.broadcast.to(data.roomName).emit("number of district cards", {nickname: player.nickname, numberOfDistrictCards: data.districtHand.length});
       }
     }
     function onOwnedDistricts (data) {
       var player = playerById(this.id);
       if (player) {
         player.setOwnedDistricts(data.ownedDistricts);
-        this.broadcast.to(data.roomName).emit("owned districts", {nickname: player.nickname, ownedDistricts: data.ownedDistricts});
         var game = games[data.roomName];
         if (game && data.ownedDistricts.length >= 8 && !game.isEnded()) {
           game.ender = player;
@@ -287,6 +311,7 @@ module.exports = function(io) {
         }
       }
     }
+
     function onChat (data) {
       var player = playerById(this.id);
       if (player) {
@@ -305,14 +330,6 @@ module.exports = function(io) {
           return player;
       }
       return false;
-    }
-    function roomById(id) {
-      var rooms = Object.keys(io.sockets.manager.roomClients[id]);
-      for (var i = 0, ii = rooms.length; i < ii; i++){
-        if (rooms[i] != "") {
-          return rooms[i].substring(1);
-        }
-      }
     }
   }
 };

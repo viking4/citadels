@@ -1,0 +1,25 @@
+<div>
+  <h3>Characters</h3>
+  <ul ng-repeat="char in game.characters">
+    <li>{{char.name}} {{char.rank}}
+      <span ng-show="char.name == game.currentCharacter.name && game.onTurn"> (Playing)</span>
+    </li>
+  </ul>
+  <div ng-show="selectCharacter">
+    <table class="table" style="width: 300px">
+      <tr>
+        <th>Name </th>
+        <th>Rank </th>
+        <th></th>
+      </tr>
+      <tr ng-repeat="char in characterCards | orderBy:'rank'" >
+        <td>{{char.name}} </td>
+        <td>{{char.rank}} </td>
+        <td>
+          <button ng-hide="discardTurn" ng-click="choose(char)" class="btn btn-primary">Choose</button>
+          <button ng-show="discardTurn && !newRound" ng-click="discard(char)" class="btn btn-warning">Discard</button>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

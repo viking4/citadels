@@ -8,10 +8,46 @@ define(["angular", "ui-router"], function (angular) {
           url: "/lobby/:roomName",
           views: {
             "root1": {
-              templateUrl: "game/lobby.html",
-              controller: "LobbyCtrl"
+              templateUrl: "html/game/game.html",
+              controller: "GameCtrl"
+            },
+            "log@lobby": {
+              templateUrl: "html/game/partials/log.html",
+              controller: "LogCtrl"
+            },
+            "characters@lobby": {
+              templateUrl: "html/game/partials/characters.html",
+              controller: "CharactersCtrl"
+            },
+            "basic-actions@lobby": {
+              templateUrl: "html/game/partials/basic_actions.html",
+              controller: "BasicActionsCtrl"
+            },
+            "owned-districts@lobby": {
+              templateUrl: "html/game/partials/player.html",
+              controller: "PlayerCtrl"
+            },
+            "assassin@lobby": {
+              templateUrl: "html/game/partials/assassin.html",
+              controller: "AssassinCtrl"
+            },
+            "thief@lobby": {
+              templateUrl: "html/game/partials/thief.html",
+              controller: "ThiefCtrl"
+            },
+            "magician@lobby": {
+              templateUrl: "html/game/partials/magician.html",
+              controller: "MagicianCtrl"
+            },
+            "warlord@lobby": {
+              templateUrl: "html/game/partials/warlord.html",
+              controller: "WarlordCtrl"
+            },
+            "haunted-city@lobby": {
+              templateUrl: "html/game/partials/haunted_city.html",
+              controller: "HauntedCityCtrl"
             }
           }
         })
-    }]);
+    }])
 });

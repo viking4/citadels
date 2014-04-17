@@ -1,0 +1,30 @@
+<div class="container">
+  <h3>Owned Districts</h3>
+  <table class="table" style="width: 300px">
+    <tr>
+      <th>Name </th>
+      <th>Type </th>
+      <th>Cost </th>
+    </tr>
+    <tr ng-repeat="card in game.ownedDistricts" >
+      <td>{{card.name}} </td>
+      <td>{{card.type}} </td>
+      <td>{{card.cost}} </td>
+    </tr>
+  </table>
+  <h3>Gold {{game.gold}}</h3>
+  <h3>District Hand</h3>
+  <table class="table" style="width: 300px">
+    <tr>
+      <th>Name </th>
+      <th>Type </th>
+      <th>Cost </th>
+    </tr>
+    <tr ng-repeat="card in game.districtHand track by $index" >
+      <td>{{card.name}} </td>
+      <td>{{card.type}} </td>
+      <td>{{card.cost}} </td>
+      <td><button ng-hide="card.cost > game.gold || game.buildCap == 0 || !game.buildTurn" ng-click="build(card);" class="btn btn-primary btn-sm"> Build </button> </td>
+    </tr>
+  </table>
+</div>
