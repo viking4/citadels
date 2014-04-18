@@ -254,7 +254,7 @@ module.exports = function(io) {
         var types = ["Noble", "Religious", "Trade", "Military", "Special"];
         for (var j = 0, jj = player.ownedDistricts.length; j < jj; j++) {
           player.districtPoints += player.ownedDistricts[j].cost;
-          if (player.ownedDistricts[j].name == "Haunted City") {
+          if (player.ownedDistricts[j].name == "Haunted City" && player.ownedDistricts[j].active) {
             player.ownedDistricts[j].type = data.type.type;
           }
           var index = types.indexOf(player.ownedDistricts[j].type);
