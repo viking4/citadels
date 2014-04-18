@@ -1,6 +1,6 @@
-<div ui-view="log"></div>
+<div ui-view="log" class="container"></div>
 
-<div ng-hide="gameStart">
+<div ng-hide="gameStart" class="container">
 Your nickname: {{game.nickname}} <br>
 Joined Players
 <ul ng-repeat="player in app.remoteRooms[$stateParams.roomName].players">
@@ -10,18 +10,34 @@ Joined Players
   <button ng-click="start();" class="btn btn-primary">Start</button>
   <button ng-click="leave()" class="btn btn-warning">Leave</button>
 </div>
+<br>
+<div ng-show="gameStart" class="container">
+  <div class="row">
+    <div class="col-md-2 col-md-offset-5">
+      <button ng-click="endTurn()" ng-disabled="!game.onTurn && !murdered" class="btn btn-success"> End Turn</button>
+    </div>
+  </div>
 
-<div ng-show="gameStart">
-  <button ng-click="endTurn()" ng-show="game.onTurn || murdered" class="btn btn-success"> End Turn</button>
+  <div class="container">
+    <div class="row">
+      <div ui-view="player" class="col-lg-4"></div>
+      <div class="col-lg-4">
+        <div ui-view="characters"></div>
+        <div class="container" ng-show="game.onTurn">
+          <div ui-view="basic-actions" ></div>
+          <div ui-view="assassin"></div>
+          <div ui-view="thief"></div>
+          <div ui-view="magician"></div>
+        </div>
+        <div ui-view="haunted-city"></div>
+      </div>
+      <div ui-view="warlord" class="col-lg-4"></div>
+    </div>
+  </div>
 
-  <div ui-view="characters"></div>
-  <div ui-view="owned-districts"></div>
-  <div ui-view="basic-actions"></div>
 
   <div ng-show="game.onTurn">
-    <div ui-view="assassin"></div>
-    <div ui-view="thief"></div>
-    <div ui-view="magician"></div>
+
     <div ng-show="game.King">
       King
     </div>
@@ -35,7 +51,4 @@ Joined Players
       Architect
     </div>
   </div>
-
-  <div ui-view="warlord"></div>
 </div>
-<div ui-view="haunted-city"></div>

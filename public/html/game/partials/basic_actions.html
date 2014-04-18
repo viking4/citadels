@@ -1,6 +1,6 @@
 <div ng-hide="game.buildTurn || !game.onTurn">
   <button ng-click="takeTwoGold()" ng-hide="hideTwoGold" class="btn btn-primary">Take two golds</button>
-  <button ng-click="drawTwoCards()" ng-hide="chooseOne" class="btn btn-success">Draw two district cards, then discard one</button>
+  <button ng-click="drawTwoCards()" ng-hide="chooseOne" class="btn btn-success">Draw two cards, then take one</button>
   <table class="table" style="width: 300px" ng-show="chooseOne">
     <tr>
       <th>Name </th>
@@ -11,7 +11,7 @@
       <td>{{card.name}} </td>
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>
-      <td><button ng-click="chooseOneCard(card)" class="btn btn-primary"> Choose </button> </td>
+      <td><button ng-click="chooseOneCard(card)" class="btn btn-primary btn-sm"> Choose </button> </td>
     </tr>
   </table>
 </div>

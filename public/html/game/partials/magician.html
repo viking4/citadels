@@ -6,13 +6,13 @@
     <tr>
       <td>Deck</td>
       <td><input type="number" ng-model="noOfExchangeCards"></td>
-      <td><button ng-click="checkNoOfExchangeCards()" class="btn btn-info">Exchange</button></td>
+      <td><button ng-click="checkNoOfExchangeCards()" class="btn btn-info btn-sm">Exchange</button></td>
     </tr>
     <tr ng-repeat="player in game.players" >
       <td>{{player.nickname}} </td>
       <td>{{player.numberOfDistrictCards}} </td>
       <td>
-        <button ng-click="exchange(player)" class="btn btn-info">Exchange</button>
+        <button ng-click="exchange(player)" class="btn btn-info btn-sm">Exchange</button>
       </td>
     </tr>
   </table>
@@ -26,7 +26,7 @@
       <td>{{card.name}} </td>
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>
-      <td><button ng-click="discardCardToExchange(card)" class="btn btn-warning"> Discard </button> </td>
+      <td><button ng-click="discardCardToExchange(card)" class="btn btn-warning btn-sm"> Discard </button> </td>
     </tr>
   </table>
 </div>

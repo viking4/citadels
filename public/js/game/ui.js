@@ -23,7 +23,7 @@ define(["angular", "ui-router"], function (angular) {
               templateUrl: "html/game/partials/basic_actions.html",
               controller: "BasicActionsCtrl"
             },
-            "owned-districts@lobby": {
+            "player@lobby": {
               templateUrl: "html/game/partials/player.html",
               controller: "PlayerCtrl"
             },
