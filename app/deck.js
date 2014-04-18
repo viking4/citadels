@@ -40,9 +40,9 @@ addDistrictCard(3, 'Palace', 'Noble', 5);
 addDistrictCard(1, 'Haunted City', 'Special', 2, 'For purposes of victory points, the Haunted City is considered to be of the color of your choice. You cannot use this ability if you built it during the last round of the game.');
 addDistrictCard(1, 'University', 'Special', 6, 'This district costs six gld to build, but is worth eight points at the end of the game.');
 addDistrictCard(1, 'Dragon Gate', 'Special', 6, 'This district costs six gld to build, but is worth eight points at the end of the game.');
+addDistrictCard(1, 'School of Magic', 'Special', 6, 'For the purposes of income, the School Of Magic is considered to be the color of your choice. If you are the King this round, for example, the School is considered to be a noble (yellow) district.');
 
 var characterDeckArray = [];
-
 function addCharacterCard(name, rank) {
   characterDeckArray.push({
       name: name,

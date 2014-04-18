@@ -7,7 +7,7 @@ define([
     "./controllers/thiefCtrl",
     "./controllers/magicianCtrl",
     "./controllers/warlordCtrl",
-    "./controllers/hauntedCityCtrl"
+    "./controllers/typeSelectionCtrl"
   ],
 
   function (angular) {
@@ -21,7 +21,7 @@ define([
       "game.controllers.thiefCtrl",
       "game.controllers.magicianCtrl",
       "game.controllers.warlordCtrl",
-      "game.controllers.hauntedCityCtrl"
+      "game.controllers.typeSelectionCtrl"
     ])
     .controller("LogCtrl", ["$scope", "gameFactory",
       function ($scope) {

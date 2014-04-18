@@ -43,9 +43,9 @@ define(["angular", "ui-router"], function (angular) {
               templateUrl: "html/game/partials/warlord.html",
               controller: "WarlordCtrl"
             },
-            "haunted-city@lobby": {
-              templateUrl: "html/game/partials/haunted_city.html",
-              controller: "HauntedCityCtrl"
+            "type-selection@lobby": {
+              templateUrl: "html/game/partials/type_selection.html",
+              controller: "TypeSelectionCtrl"
             }
           }
         })

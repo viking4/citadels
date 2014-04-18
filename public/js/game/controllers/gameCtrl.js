@@ -90,6 +90,10 @@ define(["angular"], function (angular) {
               for (var i = 0, ii = game.ownedDistricts.length, gold = 0; i < ii; i++) {
                 if (game.ownedDistricts[i].type == earnDistrictType)
                   gold++;
+                if (game.ownedDistricts[i].name == "School of Magic") {
+                  $scope.SchoolOfMagic = true;
+                  game.log("You can choose the color of your \"School of Magic\"");
+                }
               }
               if (gold > 0) {
                 game.gainGold(gold);
