@@ -254,11 +254,15 @@ module.exports = function(io) {
         var player = playerById(roster[i].id);
         var types = ["Noble", "Religious", "Trade", "Military", "Special"];
         for (var j = 0, jj = player.ownedDistricts.length; j < jj; j++) {
-          player.districtPoints += player.ownedDistricts[j].cost;
-          if (player.ownedDistricts[j].name == "Haunted City" && player.ownedDistricts[j].active) {
-            player.ownedDistricts[j].type = data.type.type;
+          var district = player.ownedDistricts[j];
+          player.districtPoints += district.cost;
+          if (district.name == "Haunted City" && district.active) {
+            district.type = data.type.type;
+          } else if (district.name == "University" || district.name == "Dragon Gate") {
+            player.districtPoints += 2;
           }
-          var index = types.indexOf(player.ownedDistricts[j].type);
+
+          var index = types.indexOf(district.type);
           if (index != -1) {
             var t = types.splice(index, 1);
             util.log(player.nickname + " GOT TYPE: " + t + "----------------")

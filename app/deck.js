@@ -38,6 +38,8 @@ addDistrictCard(4, 'Castle', 'Noble', 4);
 addDistrictCard(3, 'Palace', 'Noble', 5);
 
 addDistrictCard(1, 'Haunted City', 'Special', 2, 'For purposes of victory points, the Haunted City is considered to be of the color of your choice. You cannot use this ability if you built it during the last round of the game.');
+addDistrictCard(1, 'University', 'Special', 6, 'This district costs six gld to build, but is worth eight points at the end of the game.');
+addDistrictCard(1, 'Dragon Gate', 'Special', 6, 'This district costs six gld to build, but is worth eight points at the end of the game.');
 
 var characterDeckArray = [];
 
