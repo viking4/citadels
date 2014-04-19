@@ -23,30 +23,9 @@ define(["angular"], function (angular) {
         });
 
         $scope.chooseSchoolOfMagic = function (type) {
-          var earnDistrictType;
-          switch (game.currentCharacter.rank) {
-            case 4:
-              earnDistrictType = "Noble";
-              break;
-            case 5:
-              earnDistrictType = "Religious";
-              break;
-            case 6:
-              earnDistrictType = "Trade";
-              break;
-            case 8:
-              earnDistrictType = "Military";
-              break;
-          }
-          var gold = 0;
-
-          if (type.type == earnDistrictType) {
-            gold = 1;
-            game.gold++;
-            game.log("You gain one gold from \"School of Magic\" as " + type.type + " district");
-          } else {
-            game.log("School of Magic is now a " + type.type + " district");
-          }
+          game.calculateIncome();
+          game.log("School of Magic is now a " + type.type + " district");
+          game.setOwnedDistrictType("School of Magic", type.type);
           $scope.socket.emit("school of magic", {roomName: game.roomName, type: type.type, gold: gold});
           $scope.SchoolOfMagic = false;
         };

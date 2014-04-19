@@ -1,7 +1,10 @@
-<div ng-hide="game.buildTurn || !game.onTurn">
+<div ng-show="game.onTurn" class="container">
+  <button ng-click="collectIncome()" ng-disabled="game.income == 0 || collected" class="btn btn-warning">Collect {{game.income}} gold</button>
+</div>
+<div ng-hide="game.buildTurn || !game.onTurn" class="container">
   <div ng-hide="hideBasicActions">
-    <button ng-click="takeTwoGold()"  class="btn btn-primary">Take two golds</button>
-    <button ng-click="drawTwoCards()" class="btn btn-success">Draw two cards</button>
+    <button ng-click="takeTwoGold()"  class="btn btn-warning">Take two golds</button>
+    <button ng-click="drawTwoCards()" class="btn btn-info">Draw two cards</button>
   </div>
   <table class="table" style="width: 300px" ng-show="chooseNumber > 0">
     <tr>

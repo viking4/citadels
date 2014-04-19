@@ -61,6 +61,8 @@ define(["angular"], function (angular) {
               game.players[data.exchanger.nickname].numberOfDistrictCards = data.exchanger.cards.length;
               game.log(data.exchanger.nickname + " has exchanged cards with " + data.exchangee.nickname);
             }
+          } else {
+            game.log(data.nickname + " has exchanged " + data.exchanger.cards.length + " with the deck");
           }
         });
         $scope.$watch("game.onTurn", function (val) {

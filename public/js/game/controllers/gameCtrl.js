@@ -45,8 +45,6 @@ define(["angular"], function (angular) {
             game.bishopNickname = data.nickname;
           }
           if (nickname == data.nickname) {
-            game.log(nickname + " (You) is playing character: " + data.character.name);
-            game.currentCharacter = data.character;
             var rank = data.character.rank;
 
             switch (game.characters[rank].status) {
@@ -61,45 +59,19 @@ define(["angular"], function (angular) {
                 game.gold = 0;
               default :
                 game.log("Starting your turn as the " + data.character.name);
+                game.currentCharacter = data.character;
                 game.onTurn = true;
                 game[data.character.name] = true;
-                game.buildTurn = false;
-                game.buildCap = 1;
+                game.calculateIncome();
 
                 if (rank == 7) {
                   game.log("You can build 3 districts this turn");
                   game.buildCap = 3;
                 }
-            }
-            var earnDistrictType;
-            switch (rank) {
-              case 4:
-                earnDistrictType = "Noble";
-                break;
-              case 5:
-                earnDistrictType = "Religious";
-                break;
-              case 6:
-                earnDistrictType = "Trade";
-                break;
-              case 8:
-                earnDistrictType = "Military";
-                break;
-            }
-            if (earnDistrictType) {
-              for (var i = 0, ii = game.ownedDistricts.length, gold = 0; i < ii; i++) {
-                if (game.ownedDistricts[i].type == earnDistrictType)
-                  gold++;
-                if (game.ownedDistricts[i].name == "School of Magic") {
+                if (game.isOwned("School of Magic")) {
                   $scope.SchoolOfMagic = true;
                   game.log("You can choose the color of your \"School of Magic\"");
                 }
-              }
-              if (gold > 0) {
-                game.gainGold(gold);
-                game.log("As the " + data.character.name + ", you have gained " + gold + " gold from " + gold + " " + earnDistrictType + " districts");
-                socket.emit("gold character", {roomName: roomName, character: data.character, gold: gold});
-              }
             }
           } else {
             game.log(data.nickname + " is playing " + data.character.name);
@@ -108,18 +80,28 @@ define(["angular"], function (angular) {
             }
           }
         });
+        $scope.collectIncome = function () {
+          game.gainGold(game.income);
+          $scope.collected = true;
+          socket.emit("gold character", {roomName: game.roomName, character: game.currentCharacter, gold: game.income});
+          game.log("As the " + game.currentCharacter.name + ", you have gained " + game.income + " gold from your districts");
+        };
         socket.on("gold character", function (data) {
           game.players[data.nickname].gold += data.gold;
           game.log("As the " + data.character.name + ", " + data.nickname + " has gained " + data.gold + " gold from " + data.gold + " districts");
         });
 
         $scope.endTurn = function () {
-          game.log("Your turn has ended");
           game.onTurn = false;
           game.buildTurn = false;
           game[game.currentCharacter.name] = false;
           game.currentCharacter = {};
+          $scope.collected = false;
           $scope.murdered = false;
+          game.buildCap = 1;
+          game.setOwnedDistrictType("School of Magic", "Special");
+          game.log("Your turn has ended");
+
           socket.emit("play character", {roomName: roomName});
         };
         socket.on("game end this round", function (data) {
@@ -152,6 +134,7 @@ define(["angular"], function (angular) {
           socket.emit("gold", {gold: data});
         }, true);
         $scope.$watch("game.ownedDistricts", function (data) {
+          game.calculateIncome();
           socket.emit("owned districts", {roomName: roomName, ownedDistricts: data});
         }, true);
         $scope.$watch("game.districtHand", function (data) {

@@ -27,6 +27,7 @@ define(["angular", "btford.socket-io"], function (angular) {
             characters: {},
             currentCharacter: {},
             gold: 0,
+            income: 0,
             districtHand: [],
             ownedDistricts: [],
             onTurn: false,
@@ -66,6 +67,39 @@ define(["angular", "btford.socket-io"], function (angular) {
           for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
             if (this.ownedDistricts[i].name == "Haunted City") {
               this.ownedDistricts[i][attr] = value;
+            }
+          }
+        },
+        setOwnedDistrictType: function (name, type) {
+          for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
+            if (this.ownedDistricts[i].name == name) {
+              this.ownedDistricts[i].type = type;
+            }
+          }
+        },
+        calculateIncome: function () {
+          if (this.currentCharacter) {
+            var earnDistrictType;
+            this.income = 0;
+            switch (this.currentCharacter.rank) {
+              case 4:
+                earnDistrictType = "Noble";
+                break;
+              case 5:
+                earnDistrictType = "Religious";
+                break;
+              case 6:
+                earnDistrictType = "Trade";
+                break;
+              case 8:
+                earnDistrictType = "Military";
+                break;
+            }
+            if (earnDistrictType) {
+              for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
+                if (this.ownedDistricts[i].type == earnDistrictType)
+                  this.income++;
+              }
             }
           }
         },
