@@ -30,7 +30,7 @@ define([
           $scope.chatInput = "";
         };
         $scope.socket.on("chat", function (data) {
-          $scope.chatLog += data.nickname + ": " + data.chat + "\n";
+          $scope.chatLog += data.nickname + " " + data.chat + "\n";
         });
       }])
     .controller("PlayerCtrl", ["$scope", "gameFactory",

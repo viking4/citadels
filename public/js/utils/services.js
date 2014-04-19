@@ -40,7 +40,7 @@ define(["angular", "btford.socket-io"], function (angular) {
           })
         },
         log: function log(str) {
-          this.gameLog += $filter('date')(new Date(), 'mediumTime') + ": " + str + "\n";
+          this.gameLog += $filter('date')(new Date(), 'h:mm:ss') + ": " + str + "\n";
         },
         gainGold: function (gold) {
           this.gold += gold;
@@ -53,11 +53,6 @@ define(["angular", "btford.socket-io"], function (angular) {
           this.districtHand.splice(this.districtHand.indexOf(card), 1);
           this.gold -= card.cost;
           this.buildCap--;
-        },
-        destroyDistrict: function (card) {
-          var index = this.ownedDistricts.indexOf(card);
-          if (index != -1)
-            this.ownedDistricts.splice(index, 1);
         },
         setHauntedCityAttr: function (attr, value) {
           for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {

@@ -7,7 +7,12 @@ define(["angular"], function (angular) {
         $scope.destroy = function (player, card) {
           if (card.cost > 1)
             game.gold -= (card.cost-1);
-          game.destroyDistrict.call(game.players[player.nickname], card);
+          var districts = game.players[player.nickname].ownedDistricts;
+          for (var i = 0, ii = districts.length; i < ii; i++) {
+            if (districts[i].name == card.name) {
+              game.players[player.nickname].ownedDistricts.splice(i, 1);
+            }
+          }
 
           $scope.socket.emit("destroy", {roomName: game.roomName, player: player, card: card});
           game.Warlord = false;
@@ -16,11 +21,21 @@ define(["angular"], function (angular) {
         $scope.socket.on("destroy", function (data) {
           if (game.nickname == data.nickname) {
             game.log("The Warlord has destroyed your district " + data.card.name);
-            game.ownedDistricts.splice(game.ownedDistricts.indexOf(data.card), 1);
+            for (var i = 0, ii = game.ownedDistricts.length; i < ii; i++) {
+              if (game.ownedDistricts[i].name == data.card.name) {
+                game.ownedDistricts.splice(i, 1);
+              }
+            }
           } else {
-            game.destroyDistrict.call(game.players[data.nickname], data.card);
+            var districts = game.players[data.nickname].ownedDistricts;
+            for (var i = 0, ii = districts.length; i < ii; i++) {
+              if (districts[i].name == data.card.name) {
+                game.players[data.nickname].ownedDistricts.splice(i, 1);
+              }
+            }
             game.log("The Warlord has destroyed the district " + data.card.name + " of " + data.nickname);
           }
+          game.players[data.warlord].gold -= (data.card.cost-1);
         });
       }])
 });

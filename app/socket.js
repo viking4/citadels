@@ -238,7 +238,8 @@ module.exports = function(io) {
       this.broadcast.to(data.roomName).emit("draw architect", {nickname: nickname});
     }
     function onDestroy (data) {
-      this.broadcast.to(data.roomName).emit("destroy", {nickname: data.player.nickname, card: data.card});
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("destroy", {nickname: data.player.nickname, card: data.card, warlord: player.nickname});
     }
 
     function onHauntedCity(data) {
@@ -267,7 +268,7 @@ module.exports = function(io) {
           player.fiveColorPoints = 3;
           util.log(player.nickname + " GOT FIVE COLOR BONUS");
         }
-        if (player.nickname == game.ender) {
+        if (player.nickname == game.ender.nickname) {
           player.enderPoints = 4;
           util.log(player.nickname + " GOT ENDER BONUS");
         } else if (player.ownedDistricts.length >= 8) {
