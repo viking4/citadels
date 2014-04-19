@@ -16,30 +16,62 @@ define(["angular"], function (angular) {
           game.log(data.nickname + " took two gold from the bank. Current gold: " + game.players[data.nickname].gold);
         });
         $scope.drawTwoCards = function () {
-          $scope.hideTwoGold = true;
-          $scope.chooseOne = true;
-          game.log("You choose to draw two cards");
-          $scope.socket.emit("draw two cards", {roomName: game.roomName});
+          $scope.hideBasicActions = true;
+          if (game.isOwned("Observatory")) {
+            $scope.socket.emit("draw two cards", {roomName: game.roomName, observatory: true});
+            game.log("You choose to draw three cards (Observatory)");
+          } else {
+            $scope.socket.emit("draw two cards", {roomName: game.roomName, observatory: false});
+            game.log("You choose to draw two cards");
+          }
         };
         $scope.socket.on("draw two cards", function (data) {
           if (game.nickname == data.nickname) {
-            game.log("You have drawn two district cards: " + game.cardsToString(data.cards));
-            $scope.chooseDiscardCards = data.cards;
+            if (data.observatory) {
+              $scope.discardNumber = 2;
+              game.log("You have drawn three district cards (Observatory): " + game.cardsToString(data.cards));
+            } else {
+              $scope.discardNumber = 1;
+              game.log("You have drawn two district cards: " + game.cardsToString(data.cards));
+            }
+            if (game.isOwned("Library")) {
+              $scope.discardNumber--;
+              game.log("You can keep one extra card (Library)");
+            }
+            if ($scope.discardNumber > 0) {
+              $scope.drawCards = data.cards;
+              $scope.chooseNumber = data.cards.length-$scope.discardNumber;
+              game.log("You may take " + $scope.chooseNumber + " cards");
+            } else {
+              game.gainDistrictHand(data.cards);
+              game.log("You has taken " + game.cardsToString(data.cards));
+              for (var i = 0, ii = data.cards.length; i < ii; i++)
+                $scope.socket.emit("choose one", {roomName: game.roomName});
+              game.buildTurn = true;
+              checkAfterAction();
+            }
           } else {
-            game.log(data.nickname + " drew two cards from the deck");
+            if (data.observatory) {
+              game.log(data.nickname + " has drawn three district cards (Observatory)");
+            } else {
+              game.log(data.nickname + " has drawn two district cards");
+            }
           }
         });
-        $scope.chooseOneCard = function (card) {
+        $scope.choose = function (card) {
+          $scope.chooseNumber--;
           game.gainDistrictHand([card]);
-          game.buildTurn = true;
-          game.log("You choose the card " + card.name + ", discarded the other card");
+          $scope.drawCards.splice($scope.drawCards.indexOf(card),1);
+          game.log("You choose the card " + card.name);
+          if ($scope.chooseNumber == 0) {
+            checkAfterAction();
+            game.buildTurn = true;
+          }
           $scope.socket.emit("choose one", {roomName: game.roomName});
-          checkAfterAction();
         };
-
         $scope.socket.on("choose one", function (data) {
           game.players[data.nickname].numberOfDistrictCards++;
-          game.log(data.nickname + " choose one card and discard the other one");
+          game.log(data.nickname + " has taken one card");
         });
 
         function checkAfterAction() {
@@ -70,8 +102,7 @@ define(["angular"], function (angular) {
 
         $scope.$watch("game.onTurn", function (val) {
           if (val) {
-            $scope.hideTwoGold = false;
-            $scope.chooseOne = false;
+            $scope.hideBasicActions = false;
           }
         }, true)
       }])

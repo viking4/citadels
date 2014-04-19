@@ -180,10 +180,14 @@ module.exports = function(io) {
       this.broadcast.to(data.roomName).emit("take two gold", {nickname: player.nickname});
     }
     function onDrawTwoCards (data) {
-      var cards = games[data.roomName].districtDeck.draw(2);
+      var cards;
+      if (data.observatory)
+        cards = games[data.roomName].districtDeck.draw(3);
+      else
+        cards = games[data.roomName].districtDeck.draw(2);
       var player = playerById(this.id);
-      this.emit("draw two cards", {nickname: player.nickname, cards: cards});
-      this.broadcast.to(data.roomName).emit("draw two cards", {nickname: player.nickname})
+      this.emit("draw two cards", {nickname: player.nickname, cards: cards, observatory: data.observatory});
+      this.broadcast.to(data.roomName).emit("draw two cards", {nickname: player.nickname, observatory: data.observatory})
     }
     function onChooseOne (data) {
       var player = playerById(this.id);

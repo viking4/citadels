@@ -96,7 +96,9 @@ define(["angular"], function (angular) {
             return;
           }
         });
-        
+
+        var cools = ["Westhurst", "Belgate", "Oldness", "Goldholt", "Janhaven", "Faircliff", "Deepsage", "Aldsea", "Snowburn", "Castlewald", "Draccastle", "Mallowsea", "Southspell", "Lighthill"];
+        $scope.roomName = cools[Math.floor(Math.random()*(cools.length+1))];
         $scope.logout = function () {
           console.log("logging out: " + app.player.nickname);
           socket.emit("remove player", {nickname: app.player.nickname});

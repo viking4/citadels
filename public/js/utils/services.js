@@ -54,6 +54,14 @@ define(["angular", "btford.socket-io"], function (angular) {
           this.gold -= card.cost;
           this.buildCap--;
         },
+        isOwned: function (name) {
+          for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
+            if (this.ownedDistricts[i].name == name) {
+              return true;
+            }
+          }
+          return false;
+        },
         setHauntedCityAttr: function (attr, value) {
           for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
             if (this.ownedDistricts[i].name == "Haunted City") {
