@@ -11,7 +11,7 @@
         <th>Type </th>
         <th>Cost </th>
       </tr>
-      <tr ng-repeat="card in player.ownedDistricts" >
+      <tr ng-repeat="card in player.ownedDistricts" popover="{{card.description}}" popover-trigger="mouseenter">
         <td>{{card.name}} </td>
         <td>{{card.type}} </td>
         <td>{{card.cost}} </td>

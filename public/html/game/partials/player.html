@@ -6,7 +6,7 @@
       <th>Type </th>
       <th>Cost </th>
     </tr>
-    <tr ng-repeat="card in game.ownedDistricts" >
+    <tr ng-repeat="card in game.ownedDistricts" popover="{{card.description}}" popover-trigger="mouseenter">
       <td>{{card.name}} </td>
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>
@@ -20,11 +20,13 @@
       <th>Type </th>
       <th>Cost </th>
     </tr>
-    <tr ng-repeat="card in game.districtHand track by $index" >
+    <tr ng-repeat="card in game.districtHand track by $index" popover="{{card.description}}" popover-trigger="mouseenter">
       <td>{{card.name}} </td>
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>
-      <td><button ng-hide="card.cost > game.gold || game.buildCap == 0 || !game.buildTurn" ng-click="build(card);" class="btn btn-primary btn-sm"> Build </button> </td>
+      <td>
+        <button ng-hide="card.cost > game.gold || game.buildCap == 0 || !game.buildTurn" ng-click="build(card);" class="btn btn-primary btn-sm"> Build </button>
+      </td>
     </tr>
   </table>
 </div>

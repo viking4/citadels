@@ -10,13 +10,17 @@ require.config({
     },
     "ui-router": {
       deps: ["angular"]
+    },
+    "ui-bootstrap": {
+      deps: ["angular"]
     }
   },
   paths: {
     "angular": "../bower_components/angular/angular",
     "btford.socket-io": "lib/socket",
     "socket.io": "/socket.io/socket.io",
-    "ui-router": "../bower_components/angular-ui-router/release/angular-ui-router"
+    "ui-router": "../bower_components/angular-ui-router/release/angular-ui-router",
+    "ui-bootstrap": "../bower_components/angular-bootstrap/ui-bootstrap-tpls"
   },
   modules: [
     {
