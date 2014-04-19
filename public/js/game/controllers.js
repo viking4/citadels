@@ -46,5 +46,27 @@ define([
           game.players[data.nickname].gold -= data.card.cost;
           game.log(data.nickname + " has built " + data.card.name + ", Type: " + data.card.type + ", Cost: " + data.card.cost);
         });
+
+        $scope.useLaboratory = function () {
+          $scope.LaboratoryOn = true;
+          $scope.Laboratory = false;
+        };
+        $scope.discardLab = function (card) {
+          game.districtHand.splice(game.districtHand.indexOf(card), 1);
+          game.gainGold(1);
+          $scope.LaboratoryOn = false;
+          $scope.socket.emit("laboratory", {roomName: game.roomName, card: card});
+          game.log("You discarded " + card.name + " and gained one gold");
+        };
+        $scope.socket.on("laboratory", function (data) {
+          game.players[data.nickname].numberOfDistrictCards--;
+          game.players[data.nickname].gold++;
+          game.log(data.nickname + " has used the Laboratory's skill, discarded one of his card for one gold.");
+        });
+        $scope.$watch("game.onTurn", function (val) {
+          if (game.isOwned("Laboratory")) {
+            $scope.Laboratory = val;
+          }
+        })
       }])
 });

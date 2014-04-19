@@ -33,6 +33,7 @@ define(["angular"], function (angular) {
             for (var i = 0, ii = districts.length; i < ii; i++) {
               if (districts[i].name == data.card.name) {
                 game.players[data.nickname].ownedDistricts.splice(i, 1);
+                break;
               }
             }
             game.log("The Warlord has destroyed the district " + data.card.name + " of " + data.nickname);

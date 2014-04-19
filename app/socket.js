@@ -42,6 +42,7 @@ module.exports = function(io) {
     client.on("school of magic", onSchoolOfMagic);
     client.on("graveyard", onGraveyard);
     client.on("graveyard done", onGraveyardDone);
+    client.on("laboratory", onLaboratory);
 
     client.on("gold", onGold);
     client.on("owned districts", onOwnedDistricts);
@@ -309,6 +310,10 @@ module.exports = function(io) {
     function onGraveyardDone (data) {
       var player = playerById(this.id);
       this.broadcast.to(data.roomName).emit("graveyard done", {nickname: player.nickname, card: data.card});
+    }
+    function onLaboratory (data) {
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("laboratory", {nickname: player.nickname})
     }
 
     function onGold (data) {
