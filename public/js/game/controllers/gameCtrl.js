@@ -121,6 +121,9 @@ define(["angular"], function (angular) {
           game.log(data.nickname + " has at least 8 districts. The game will end this round");
         });
         socket.on("game end", function (data) {
+          $scope.gameEnd = true;
+          $scope.final = data.final;
+          $scope.winner = data.winner;
           game.log("The winner is " + data.winner.nickname);
         });
         $scope.leave = function () {

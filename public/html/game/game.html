@@ -11,10 +11,33 @@ Joined Players
   <button ng-click="leave()" class="btn btn-warning">Leave</button>
 </div>
 <br>
+<div ng-show="gameEnd" class="container">
+    <table class="table center-block" style="width: 70%">
+      <tr>
+        <th>Player </th>
+        <th>District Point</th>
+        <th>Five-color Bonus</th>
+        <th>Finisher Bonus </th>
+        <th>Completion Bonus </th>
+        <th>Total</th>
+        <th>Gold</th>
+      </tr>
+      <tr ng-repeat="player in final | orderBy:'totalPoints':true" ng-class="{info: player.nickname == winner.nickname}" class="text-center">
+        <td>{{player.nickname}} </td>
+        <td>{{player.districtPoints}} </td>
+        <td>{{player.fiveColorPoints}} </td>
+        <td>{{player.enderPoints}} </td>
+        <td>{{player.eightDistrictPoints}} </td>
+        <td>{{player.totalPoints}} </td>
+        <td>{{player.gold}} </td>
+      </tr>
+    </table>
+</div>
+
 <div ng-show="gameStart" class="container">
   <div class="row">
     <div class="col-md-2 col-md-offset-5">
-      <button ng-click="endTurn()" ng-disabled="!game.onTurn && !murdered" class="btn btn-success"> End Turn</button>
+      <button ng-click="endTurn()" ng-disabled="!game.onTurn && !murdered" ng-hide="gameEnd" class="btn btn-success"> End Turn</button>
     </div>
   </div>
 
@@ -34,7 +57,6 @@ Joined Players
       <div ui-view="warlord" class="col-lg-4"></div>
     </div>
   </div>
-
 
   <div ng-show="game.onTurn">
 
