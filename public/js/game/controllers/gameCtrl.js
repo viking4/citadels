@@ -118,6 +118,7 @@ define(["angular"], function (angular) {
           game.onTurn = false;
           game.buildTurn = false;
           game[game.currentCharacter.name] = false;
+          game.currentCharacter = {};
           $scope.murdered = false;
           socket.emit("play character", {roomName: roomName});
         };

@@ -37,7 +37,7 @@ Joined Players
 <div ng-show="gameStart" class="container">
   <div class="row">
     <div class="col-md-2 col-md-offset-5">
-      <button ng-click="endTurn()" ng-disabled="!game.onTurn && !murdered" ng-hide="gameEnd" class="btn btn-success"> End Turn</button>
+      <button ng-click="endTurn()" ng-disabled="(!game.onTurn && !murdered) || game.disableEndTurn" ng-hide="gameEnd" class="btn btn-success"> End Turn</button>
     </div>
   </div>
 

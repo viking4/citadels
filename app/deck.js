@@ -43,6 +43,7 @@ addDistrictCard(1, 'Dragon Gate', 'Special', 6, 'This district costs six gld to 
 addDistrictCard(1, 'School of Magic', 'Special', 6, 'For the purposes of income, the School Of Magic is considered to be the color of your choice. If you are the King this round, for example, the School is considered to be a noble (yellow) district.');
 addDistrictCard(1, 'Observatory', 'Special', 5, 'If you choose to draw cards when you take an action, you draw three cards, keep one of your choice, and put the other two on the bottom of the deck.');
 addDistrictCard(1, 'Library', 'Special', 6, 'If you choose to draw cards you you take an action, you keep both of the cards you have drawn.');
+addDistrictCard(1, 'Graveyard', 'Special', 5, 'When the Warlord destroys a district, you may pay one gold to take the destroyed district into your hand. You may not do this if you are the Warlord. You cannot use this ability to retrieve the Graveyard if it was destroyed.');
 
 var characterDeckArray = [];
 function addCharacterCard(name, rank) {

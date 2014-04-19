@@ -40,6 +40,8 @@ module.exports = function(io) {
 
     client.on("haunted city", onHauntedCity);
     client.on("school of magic", onSchoolOfMagic);
+    client.on("graveyard", onGraveyard);
+    client.on("graveyard done", onGraveyardDone);
 
     client.on("gold", onGold);
     client.on("owned districts", onOwnedDistricts);
@@ -296,10 +298,17 @@ module.exports = function(io) {
       this.broadcast.to(data.roomName).emit("game end", {winner: winner, final: final});
       delete games[data.roomName];
     }
-
     function onSchoolOfMagic (data) {
       var player = playerById(this.id);
       this.broadcast.to(data.roomName).emit("school of magic", {nickname: player.nickname, type: data.type, gold: data.gold});
+    }
+    function onGraveyard (data) {
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("graveyard", {nickname: player.nickname, card: data.card});
+    }
+    function onGraveyardDone (data) {
+      var player = playerById(this.id);
+      this.broadcast.to(data.roomName).emit("graveyard done", {nickname: player.nickname, card: data.card});
     }
 
     function onGold (data) {

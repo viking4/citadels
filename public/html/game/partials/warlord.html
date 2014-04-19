@@ -1,4 +1,17 @@
-<div>
+<div class="container" ng-show="Graveyard">
+  <h3>Graveyard</h3>
+  You may pay one gold to take the the destroyed district into your hand <br>
+  <table class="table" style="width: 300px">
+    <tr popover="{{destroyedCard.description}}" popover-trigger="mouseenter">
+      <td>{{destroyedCard.name}} </td>
+      <td>{{destroyedCard.type}} </td>
+      <td>{{destroyedCard.cost}} </td>
+    </tr>
+  </table>
+  <button ng-click="agree()" class="btn btn-info">OK</button>
+  <button ng-click="deny()" class="btn btn-warning">No, thanks!</button>
+</div>
+<div class="container">
   <h3>Other Players</h3>
   <div ng-repeat="player in game.players">
     Nickname: {{player.nickname}} <br>
