@@ -28,7 +28,7 @@
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>
       <td>
-        <button ng-hide="card.cost > game.gold || game.buildCap == 0 || !game.buildTurn" ng-click="build(card);" class="btn btn-primary btn-sm"> Build </button>
+        <button ng-hide="card.cost > game.gold || game.buildCap == 0 || !game.buildTurn || game.ownedDistricts[card.name]" ng-click="build(card);" class="btn btn-primary btn-sm"> Build </button>
       </td>
       <td>
         <button ng-show="LaboratoryOn" ng-click="discardLab(card)" class="btn btn-primary btn-sm"> Discard </button>

@@ -41,7 +41,7 @@ define([
           $scope.socket.emit("build", {roomName: game.roomName, card: card});
         };
         $scope.socket.on("build", function (data) {
-          game.players[data.nickname].ownedDistricts.push(data.card);
+          game.players[data.nickname].ownedDistricts[data.card.name] = data.card;
           game.players[data.nickname].numberOfDistrictCards--;
           game.players[data.nickname].gold -= data.card.cost;
           game.log(data.nickname + " has built " + data.card.name + ", Type: " + data.card.type + ", Cost: " + data.card.cost);

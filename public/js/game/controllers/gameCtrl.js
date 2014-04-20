@@ -99,7 +99,8 @@ define(["angular"], function (angular) {
           $scope.collected = false;
           $scope.murdered = false;
           game.buildCap = 1;
-          game.setOwnedDistrictType("School of Magic", "Special");
+          if (game.ownedDistricts["School of Magic"])
+            game.ownedDistricts["School of Magic"].type = "Special";
           game.log("Your turn has ended");
 
           socket.emit("play character", {roomName: roomName});

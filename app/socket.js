@@ -162,7 +162,7 @@ module.exports = function(io) {
         var roster = io.sockets.clients(data.roomName);
         for (var i = 0, ii = roster.length; i < ii; i++) {
           var player = playerById(roster[i].id);
-          var hauntedCity = player.ownedCardByName("Haunted City");
+          var hauntedCity = player.ownedDistricts["Haunted City"];
           if (hauntedCity && hauntedCity.active) {
             this.emit("haunted city", {nickname: player.nickname});
             this.broadcast.to(data.roomName).emit("haunted city", {nickname: player.nickname});
@@ -261,8 +261,9 @@ module.exports = function(io) {
       for (var i = 0, ii = roster.length; i < ii; i++) {
         var player = playerById(roster[i].id);
         var types = ["Noble", "Religious", "Trade", "Military", "Special"];
-        for (var j = 0, jj = player.ownedDistricts.length; j < jj; j++) {
-          var district = player.ownedDistricts[j];
+        var districtKeys = Object.keys(player.ownedDistricts);
+        for (var j = 0, jj = districtKeys.length; j < jj; j++) {
+          var district = player.ownedDistricts[districtKeys[j]];
           player.districtPoints += district.cost;
           if (district.name == "Haunted City" && district.active) {
             district.type = data.type.type;
@@ -283,7 +284,7 @@ module.exports = function(io) {
         if (player.nickname == game.ender.nickname) {
           player.enderPoints = 4;
           util.log(player.nickname + " GOT ENDER BONUS");
-        } else if (player.ownedDistricts.length >= 8) {
+        } else if (player.getOwnedDistrictsLength() >= 8) {
           util.log(player.nickname + " GOT FINISHER BONUS");
           player.eightDistrictPoints = 2;
         }
@@ -301,7 +302,7 @@ module.exports = function(io) {
     }
     function onSchoolOfMagic (data) {
       var player = playerById(this.id);
-      this.broadcast.to(data.roomName).emit("school of magic", {nickname: player.nickname, type: data.type, gold: data.gold});
+      this.broadcast.to(data.roomName).emit("school of magic", {nickname: player.nickname, type: data.type});
     }
     function onGraveyard (data) {
       var player = playerById(this.id);
@@ -331,9 +332,9 @@ module.exports = function(io) {
     function onOwnedDistricts (data) {
       var player = playerById(this.id);
       if (player) {
-        player.setOwnedDistricts(data.ownedDistricts);
+        player.ownedDistricts = data.ownedDistricts;
         var game = games[data.roomName];
-        if (game && data.ownedDistricts.length >= 8 && !game.isEnded()) {
+        if (game && Object.keys(data.ownedDistricts).length >= 8 && !game.isEnded()) {
           game.ender = player;
           this.emit("game end this round", {nickname: player.nickname});
           this.broadcast.to(data.roomName).emit("game end this round", {nickname: player.nickname});

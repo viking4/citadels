@@ -12,7 +12,8 @@ define(["angular"], function (angular) {
             game.murderVictim = {};
             game.thiefNickname = "";
             game.bishopNickname = "";
-            game.setHauntedCityAttr("active", true);
+            if (game.ownedDistricts["Haunted City"])
+              game.ownedDistricts["Haunted City"].active = true;
             game.log("New round has begun.");
           }
           if (data.nickname == game.nickname) {

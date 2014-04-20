@@ -52,9 +52,12 @@ define(["angular"], function (angular) {
           app.remoteRooms[data.roomName].players[data.player.nickname] = {
             nickname: data.player.nickname,
             id: data.player.id,
-            ownedDistricts: [],
+            ownedDistricts: {},
             numberOfDistrictCards: 0,
-            gold: 0
+            gold: 0,
+            getOwnedDistrctsLength: function () {
+              return Object.keys(this.ownedDistricts).length;
+            }
           };
           app.remoteRooms[data.roomName].numberOfPlayers = Object.keys(app.remoteRooms[data.roomName].players).length;
           if (app.player.nickname == data.player.nickname) {

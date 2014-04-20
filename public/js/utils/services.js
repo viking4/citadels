@@ -29,7 +29,7 @@ define(["angular", "btford.socket-io"], function (angular) {
             gold: 0,
             income: 0,
             districtHand: [],
-            ownedDistricts: [],
+            ownedDistricts: {},
             onTurn: false,
             buildCap: 1,
             buildTurn: false,
@@ -50,32 +50,13 @@ define(["angular", "btford.socket-io"], function (angular) {
           this.districtHand = this.districtHand.concat(cards);
         },
         buildDistrict: function (card) {
-          this.ownedDistricts.push(card);
+          this.ownedDistricts[card.name] = card;
           this.districtHand.splice(this.districtHand.indexOf(card), 1);
           this.gold -= card.cost;
           this.buildCap--;
         },
         isOwned: function (name) {
-          for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
-            if (this.ownedDistricts[i].name == name) {
-              return true;
-            }
-          }
-          return false;
-        },
-        setHauntedCityAttr: function (attr, value) {
-          for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
-            if (this.ownedDistricts[i].name == "Haunted City") {
-              this.ownedDistricts[i][attr] = value;
-            }
-          }
-        },
-        setOwnedDistrictType: function (name, type) {
-          for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
-            if (this.ownedDistricts[i].name == name) {
-              this.ownedDistricts[i].type = type;
-            }
-          }
+          return this.ownedDistricts[name];
         },
         calculateIncome: function () {
           if (this.currentCharacter) {
@@ -96,8 +77,9 @@ define(["angular", "btford.socket-io"], function (angular) {
                 break;
             }
             if (earnDistrictType) {
-              for (var i = 0, ii = this.ownedDistricts.length; i < ii; i++) {
-                if (this.ownedDistricts[i].type == earnDistrictType)
+              var districtKeys = Object.keys(this.ownedDistricts);
+              for (var i = 0, ii = districtKeys.length; i < ii; i++) {
+                if (this.ownedDistricts[districtKeys[i]].type == earnDistrictType)
                   this.income++;
               }
             }
