@@ -38,7 +38,9 @@ define(["angular", "btford.socket-io"], function (angular) {
             players: {},
             order: [],
             roomCap: roomCap,
-            Laboratory: false
+            Laboratory: false,
+            SchoolOfMagic: false,
+            Smithy: false
           })
         },
         log: function log(str) {
@@ -84,6 +86,18 @@ define(["angular", "btford.socket-io"], function (angular) {
                   this.income++;
               }
             }
+          }
+        },
+        checkSpecialCards: function () {
+          if (this.isOwned("School of Magic")) {
+            this.SchoolOfMagic = true;
+            this.log("You can choose the color of your School of Magic");
+          }
+          if (this.isOwned("Laboratory")) {
+            this.Laboratory = true;
+          }
+          if (this.isOwned("Smithy")) {
+            this.Smithy = true;
           }
         },
         charsToString: function  (chars) {

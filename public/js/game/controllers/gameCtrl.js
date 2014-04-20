@@ -56,18 +56,13 @@ define(["angular"], function (angular) {
                 game.onTurn = true;
                 game[data.character.name] = true;
                 game.calculateIncome();
+                game.checkSpecialCards();
 
                 if (rank == 7) {
                   game.log("You can build 3 districts this turn");
                   game.buildCap = 3;
                 }
-                if (game.isOwned("School of Magic")) {
-                  game.SchoolOfMagic = true;
-                  game.log("You can choose the color of your \"School of Magic\"");
-                }
-                if (game.isOwned("Laboratory")) {
-                  game.Laboratory = true;
-                }
+
             }
           } else {
             game.log(data.nickname + " is playing " + data.character.name);
@@ -91,12 +86,15 @@ define(["angular"], function (angular) {
           game.buildTurn = false;
           game[game.currentCharacter.name] = false;
           game.currentCharacter = {};
-          $scope.collected = false;
-          $scope.murdered = false;
           game.buildCap = 1;
 
           game.SchoolOfMagic = false;
           game.Laboratory = false;
+          game.Smithy = false;
+
+          $scope.collected = false;
+          $scope.murdered = false;
+
           if (game.ownedDistricts["School of Magic"])
             game.ownedDistricts["School of Magic"].type = "Special";
 
