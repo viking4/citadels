@@ -12,7 +12,6 @@ define(["angular"], function (angular) {
           checkAfterAction();
         };
         $scope.socket.on("take two gold", function (data) {
-          game.players[data.nickname].gold += 2;
           game.log(data.nickname + " took two gold from the bank. Current gold: " + game.players[data.nickname].gold);
         });
         $scope.drawTwoCards = function () {
@@ -70,7 +69,6 @@ define(["angular"], function (angular) {
           $scope.socket.emit("choose one", {roomName: game.roomName});
         };
         $scope.socket.on("choose one", function (data) {
-          game.players[data.nickname].numberOfDistrictCards++;
           game.log(data.nickname + " has taken one card");
         });
 
@@ -88,14 +86,12 @@ define(["angular"], function (angular) {
         }
         $scope.socket.on("gold merchant", function (data) {
           game.log("As the Merchant, " + data.nickname + " have gained one gold after taking an action");
-          game.players[data.nickname].gold++;
         });
         $scope.socket.on("draw architect", function (data) {
           if (game.nickname == data.nickname) {
             game.log("You got two cards after taking a action: " + game.cardsToString(data.cards));
             game.gainDistrictHand(data.cards);
           } else {
-            game.players[data.nickname].numberOfDistrictCards += 2;
             game.log(data.nickname + " the Architect got two cards after taking a action. Current # of cards: " + game.players[data.nickname].numberOfDistrictCards);
           }
         });

@@ -319,26 +319,30 @@ module.exports = function(io) {
 
     function onGold (data) {
       var player = playerById(this.id);
-      if (player) {
+      if (player) { // needed for the init
         player.setGold(data.gold);
+        this.broadcast.to(data.roomName).emit("gold", {nickname: player.nickname, gold: data.gold});
       }
     }
     function onDistrictHand (data) {
       var player = playerById(this.id);
       if (player) {
         player.setDistrictHand(data.districtHand);
+        this.broadcast.to(data.roomName).emit("district hand", {nickname: player.nickname, number: data.districtHand.length});
       }
     }
     function onOwnedDistricts (data) {
       var player = playerById(this.id);
       if (player) {
         player.ownedDistricts = data.ownedDistricts;
-        var game = games[data.roomName];
-        if (game && Object.keys(data.ownedDistricts).length >= 8 && !game.isEnded()) {
-          game.ender = player;
-          this.emit("game end this round", {nickname: player.nickname});
-          this.broadcast.to(data.roomName).emit("game end this round", {nickname: player.nickname});
-        }
+        this.broadcast.to(data.roomName).emit("owned districts", {nickname: player.nickname, ownedDistricts: data.ownedDistricts});
+      }
+
+      var game = games[data.roomName];
+      if (game && Object.keys(data.ownedDistricts).length >= 8 && !game.isEnded()) {
+        game.ender = player;
+        this.emit("game end this round", {nickname: player.nickname});
+        this.broadcast.to(data.roomName).emit("game end this round", {nickname: player.nickname});
       }
     }
 

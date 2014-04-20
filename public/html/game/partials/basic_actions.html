@@ -1,5 +1,5 @@
 <div ng-show="game.onTurn" class="container">
-  <button ng-click="collectIncome()" ng-disabled="game.income == 0 || collected" class="btn btn-warning">Collect {{game.income}} gold</button>
+  <button ng-click="collectIncome()" ng-disabled="game.income == 0 || collected" class="btn btn-warning" style="margin-bottom: 10px">Collect {{game.income}} gold</button>
 </div>
 <div ng-hide="game.buildTurn || !game.onTurn" class="container">
   <div ng-hide="hideBasicActions">

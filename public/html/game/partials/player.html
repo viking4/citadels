@@ -11,7 +11,7 @@
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>
       <td>
-        <button ng-show="Laboratory && card.name == 'Laboratory'" ng-click="useLaboratory()" class="btn btn-primary btn-sm"> Use Ability </button>
+        <button ng-show="game.Laboratory && card.name == 'Laboratory'" ng-click="toggleLab()" class="btn btn-primary btn-sm"> Toggle Ability </button>
       </td>
     </tr>
   </table>

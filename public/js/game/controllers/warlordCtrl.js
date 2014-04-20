@@ -49,8 +49,6 @@ define(["angular"], function (angular) {
         };
         $scope.socket.on("graveyard done", function (data) {
           if (data.card) {
-            game.players[data.nickname].gold--;
-            game.players[data.nickname].numberOfDistrictCards++;
             game.log(data.nickname + " has taken " + data.card.name + " into his hand");
           } else {
             game.log(data.nickname + " has passed the Graveyard's ability");

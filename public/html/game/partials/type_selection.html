@@ -1,4 +1,4 @@
-<div ng-show="HauntedCity || SchoolOfMagic"
+<div ng-show="HauntedCity || game.SchoolOfMagic"
      ng-init="districtTypes = [
           {type: 'Noble', color: 'Yellow'},
           {type: 'Religious', color: 'Blue'},
@@ -16,7 +16,7 @@
       <td>{{type.color}} </td>
       <td>
         <button ng-show="HauntedCity" ng-click="chooseHauntedCity(type)" class="btn btn-warning btn-sm">Choose</button>
-        <button ng-show="SchoolOfMagic" ng-click="chooseSchoolOfMagic(type)" class="btn btn-warning btn-sm">Choose</button>
+        <button ng-show="game.SchoolOfMagic" ng-click="chooseSchoolOfMagic(type)" class="btn btn-warning btn-sm">Choose</button>
       </td>
     </tr>
   </table>

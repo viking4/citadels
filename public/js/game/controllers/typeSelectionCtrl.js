@@ -15,8 +15,8 @@ define(["angular"], function (angular) {
         $scope.chooseHauntedCity = function (type) {
           game.ownedDistricts["Haunted City"].type = type.type;
           $scope.socket.emit("haunted city", {roomName: game.roomName, type: type});
-          $scope.HauntedCity = false;
           game.log("Your haunted city's type is " + type.type + " with color " + type.color);
+          $scope.HauntedCity = false;
         };
         $scope.socket.on("haunted city done", function (data) {
           game.log("The haunted city's type is " + data.type.type + " with color " + data.type.color);
@@ -26,8 +26,8 @@ define(["angular"], function (angular) {
           game.calculateIncome();
           game.ownedDistricts["School of Magic"].type = type.type;
           $scope.socket.emit("school of magic", {roomName: game.roomName, type: type.type});
-          $scope.SchoolOfMagic = false;
           game.log("School of Magic is now a " + type.type + " district");
+          $scope.SchoolOfMagic = false;
         };
         $scope.socket.on("school of magic", function (data) {
           game.log(data.nickname + " turns his School of Magic to " + data.type + " district");

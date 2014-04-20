@@ -27,11 +27,9 @@ define(["angular"], function (angular) {
             game.gainGold(data.gold);
             game.log("You have got " + data.gold + " gold from stealing");
           } else {
-            game.players[game.thiefNickname].gold += data.gold;
             game.log(game.thiefNickname + " the Thief has got " + data.gold + " gold from stealing")
           }
           if (game.nickname != data.nickname) {
-            game.players[data.nickname].gold -= data.gold;
             game.log(data.nickname + " the victim of the Thief has lost " + data.gold);
           }
         });

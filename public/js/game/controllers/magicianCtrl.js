@@ -47,18 +47,12 @@ define(["angular"], function (angular) {
         $scope.socket.on("exchange", function (data) {
           if (game.nickname == data.exchanger.nickname) {
             game.gainDistrictHand(data.exchanger.cards);
-            if (data.exchangee) {
-              game.players[data.exchangee.nickname].numberOfDistrictCards = data.exchangee.cards.length;
-            }
             game.log("Your district hand is " + game.cardsToString(data.exchanger.cards) + " after the exchange");
           } else if (data.exchangee) {
             if (game.nickname == data.exchangee.nickname) {
               game.districtHand = data.exchangee.cards;
               game.log("You got exchanged, now your district hand is " + game.cardsToString(game.districtHand));
-              game.players[data.exchanger.nickname].numberOfDistrictCards = data.exchanger.cards.length;
             } else {
-              game.players[data.exchangee.nickname].numberOfDistrictCards = data.exchangee.cards.length;
-              game.players[data.exchanger.nickname].numberOfDistrictCards = data.exchanger.cards.length;
               game.log(data.exchanger.nickname + " has exchanged cards with " + data.exchangee.nickname);
             }
           } else {
@@ -71,6 +65,5 @@ define(["angular"], function (angular) {
             $scope.chooseExchangeCards = false;
           }
         })
-
       }])
 });

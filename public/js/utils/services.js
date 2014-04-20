@@ -37,7 +37,8 @@ define(["angular", "btford.socket-io"], function (angular) {
             bishopHolder: "",
             players: {},
             order: [],
-            roomCap: roomCap
+            roomCap: roomCap,
+            Laboratory: false
           })
         },
         log: function log(str) {
