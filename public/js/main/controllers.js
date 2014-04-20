@@ -5,6 +5,8 @@ define(["angular"], function (angular) {
     .controller("MainCtrl", ["$scope", "appFactory",
       function ($scope, app) {
         var socket = $scope.socket;
+        var cools = ["Westhurst", "Belgate", "Oldness", "Goldholt", "Janhaven", "Faircliff", "Deepsage", "Aldsea", "Snowburn", "Castlewald", "Draccastle", "Mallowsea", "Southspell", "Lighthill"];
+        $scope.roomName = cools[Math.floor(Math.random()*(cools.length+1))];
 
         $scope.createPlayer = function () {
           if (app.socketConnected && $scope.nickname) {
@@ -14,9 +16,6 @@ define(["angular"], function (angular) {
               $scope.socket.emit("new player", {nickname: $scope.nickname});
               app.player.nickname = $scope.nickname;
             }
-
-            var cools = ["Westhurst", "Belgate", "Oldness", "Goldholt", "Janhaven", "Faircliff", "Deepsage", "Aldsea", "Snowburn", "Castlewald", "Draccastle", "Mallowsea", "Southspell", "Lighthill"];
-            $scope.roomName = cools[Math.floor(Math.random()*(cools.length+1))];
           }
         };
 
@@ -26,6 +25,14 @@ define(["angular"], function (angular) {
           } else if ($scope.roomCap != 2) {
             $scope.not2 = true;
           } else {
+            app.remoteRooms[$scope.roomName] = {
+              roomName: $scope.roomName,
+              players: {},
+              roomCap: $scope.roomCap,
+              getNumberOfPlayers: function () {
+                return Object.keys(this.players).length;
+              }
+            };
             socket.emit("join room", {roomName: $scope.roomName, roomCap: $scope.roomCap});
           }
         };
@@ -48,7 +55,9 @@ define(["angular"], function (angular) {
               roomName: data.roomName,
               players: {},
               roomCap: data.roomCap,
-              numberOfPlayers: 0
+              getNumberOfPlayers: function () {
+                return Object.keys(this.players).length;
+              }
             };
             console.log(data.player.nickname + " has created " + data.roomName);
           }
@@ -62,7 +71,6 @@ define(["angular"], function (angular) {
               return Object.keys(this.ownedDistricts).length;
             }
           };
-          app.remoteRooms[data.roomName].numberOfPlayers = Object.keys(app.remoteRooms[data.roomName].players).length;
           if (app.player.nickname == data.player.nickname) {
             $scope.$state.go("lobby", {roomName: data.roomName});
           }
@@ -86,16 +94,9 @@ define(["angular"], function (angular) {
           var player = app.remotePlayers[data.nickname];
           if (player) {
             delete app.remotePlayers[data.nickname];
-            var roomKeys  = Object.keys(app.remoteRooms);
-            for (var i = 0, ii = roomKeys.length; i < ii; i++) {
-              var room = app.remoteRooms[roomKeys[i]];
-              if (room.players[data.nickname]) {
-                delete room.players[data.nickname];
-                room.numberOfPlayers = Object.keys(room.players).length;
-                if (room.numberOfPlayers == 0) {
-                  delete app.remoteRooms[roomKeys[i]];
-                }
-              }
+            var keys  = Object.keys(app.remoteRooms);
+            for (var i = 0, ii = keys.length; i < ii; i++) {
+              delete app.remoteRooms[keys[i]].players[data.nickname];
             }
           } else {
             console.log("Player not found: "+data.id);
@@ -108,5 +109,16 @@ define(["angular"], function (angular) {
           socket.emit("remove player", {nickname: app.player.nickname});
           app.player.nickname = "";
         };
+
+        $scope.$watch("app.remoteRooms", function () {
+          var keys = Object.keys(app.remoteRooms);
+          for (var i = 0, ii = keys.length; i < ii; i++) {
+            var room =  app.remoteRooms[keys[i]];
+            app.remoteRooms[keys[i]].numberOfPlayers = room.getNumberOfPlayers();
+            if (room.numberOfPlayers == 0) {
+              delete app.remoteRooms[keys[i]];
+            }
+          }
+        })
     }]);
 });

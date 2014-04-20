@@ -7,8 +7,8 @@ define(["angular"], function (angular) {
         $scope.destroy = function (player, card) {
           if (card.cost > 1)
             game.gold -= (card.cost-1);
-          delete game.players[player.nickname].ownedDistricts[card.name];
-
+          if (player.ownedDistricts["Great Wall"] && card.name != 'Great Wall')
+            game.gold--;
           $scope.socket.emit("destroy", {roomName: game.roomName, player: player, card: card});
           game.Warlord = false;
           game.log("You choose to destroy the district " + card.name + " of " + player.nickname);
@@ -18,7 +18,6 @@ define(["angular"], function (angular) {
             delete game.ownedDistricts[data.card.name];
             game.log("The Warlord has destroyed your district " + data.card.name);
           } else {
-            delete game.players[data.nickname].ownedDistricts;
             game.log("The Warlord has destroyed the district " + data.card.name + " of " + data.nickname);
           }
           game.players[data.warlord].gold -= (data.card.cost-1);
@@ -35,6 +34,8 @@ define(["angular"], function (angular) {
           }
           game.log(data.nickname + " is using Graveyard ability");
         });
+
+        // graveyard
         $scope.agree = function () {
           game.gainGold(-1);
           game.gainDistrictHand([$scope.destroyedCard]);

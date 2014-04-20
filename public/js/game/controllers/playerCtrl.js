@@ -58,5 +58,11 @@ define(["angular"], function (angular) {
             game.log(data.nickname + " has drawn three cards (Smithy)");
           }
         });
+
+        $scope.$watch("game.onTurn", function (val) {
+          if (!val) {
+            $scope.LaboratoryOn = val;
+          }
+        });
       }]);
 });

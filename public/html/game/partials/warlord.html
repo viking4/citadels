@@ -23,6 +23,7 @@
         <th>Name </th>
         <th>Type </th>
         <th>Cost </th>
+        <th ng-show="game.onTurn && game.Warlord">Destroy</th>
       </tr>
       <tr ng-repeat="card in player.ownedDistricts" popover="{{card.description}}" popover-trigger="mouseenter">
         <td>{{card.name}} </td>
@@ -30,10 +31,10 @@
         <td>{{card.cost}} </td>
         <td>
           <button ng-show="game.onTurn && game.Warlord &&
-                           game.gold >= (card.cost-1) &&
+                           (game.gold>=(card.cost-1) && (card.name=='Great Wall' || !player.ownedDistricts['Great Wall']) || game.gold>=card.cost && player.ownedDistricts['Great Wall']) &&
                            player.nickname != game.bishopNickname &&
                            player.getOwnedDistrctsLength() < 8 &&
-                           card.name != 'Keep'" ng-click="destroy(player, card)" class="btn btn-danger btn-sm">Destroy</button>
+                           card.name != 'Keep'" ng-click="destroy(player, card)" class="btn btn-danger btn-sm">Pay {{card.cost-1}}<span ng-show="player.ownedDistricts['Great Wall'] && card.name != 'Great Wall'">+1</span></button>
         </td>
       </tr>
     </table>

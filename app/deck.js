@@ -47,6 +47,7 @@ addDistrictCard(1, 'Graveyard', 'Special', 5, 'When the Warlord destroys a distr
 addDistrictCard(2, 'Keep', 'Special', 3, 'The Keep cannot be destroyed/exchanged by the Warlord/Diplomat.');
 addDistrictCard(1, 'Laboratory', 'Special', 5, 'Once during your turn, you may discard a district card from your hand and receive one gold from the bank.');
 addDistrictCard(1, 'Smithy', 'Special', 5, 'Once during your turn, you may pay two gold to draw three district cards.');
+addDistrictCard(1, 'Great Wall', 'Special', 6, 'The cost for the Warlord/ Diplomat to destroy/ exchange any of your other districts is increased by one gold.');
 
 var characterDeckArray = [];
 function addCharacterCard(name, rank) {
