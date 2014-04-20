@@ -119,6 +119,6 @@ define(["angular"], function (angular) {
               delete app.remoteRooms[keys[i]];
             }
           }
-        })
+        }, true)
     }]);
 });

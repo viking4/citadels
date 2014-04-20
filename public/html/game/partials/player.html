@@ -1,12 +1,12 @@
 <div class="container">
   <h3>Owned Districts</h3>
-  <table class="table" style="width: 300px">
+  <table class="table" style="width: auto">
     <tr>
       <th>Name </th>
       <th>Type </th>
       <th>Cost </th>
     </tr>
-    <tr ng-repeat="card in game.ownedDistricts" popover="{{card.description}}" popover-trigger="mouseenter">
+    <tr ng-repeat="card in game.ownedDistricts" popover="{{card.description}}" popover-trigger="click">
       <td>{{card.name}} </td>
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>
@@ -18,13 +18,13 @@
   </table>
   <h3>Gold {{game.gold}}</h3>
   <h3>District Hand</h3>
-  <table class="table" style="width: 300px">
+  <table class="table" style="width: auto">
     <tr>
       <th>Name </th>
       <th>Type </th>
       <th>Cost </th>
     </tr>
-    <tr ng-repeat="card in game.districtHand track by $index" popover="{{card.description}}" popover-trigger="mouseenter">
+    <tr ng-repeat="card in game.districtHand track by $index" popover="{{card.description}}" popover-trigger="click">
       <td>{{card.name}} </td>
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>

@@ -36,15 +36,15 @@ Joined Players
 
 <div ng-show="gameStart" class="container">
   <div class="row">
-    <div class="col-md-2 col-md-offset-5">
+    <div class="col-md-2 col-md-offset-5 col-xs-2 col-xs-offset-5">
       <button ng-click="endTurn()" ng-disabled="(!game.onTurn && !murdered) || game.disableEndTurn" ng-hide="gameEnd" class="btn btn-success"> End Turn</button>
     </div>
   </div>
 
   <div class="container">
     <div class="row">
-      <div ui-view="player" class="col-lg-4"></div>
-      <div class="col-lg-4">
+      <div ui-view="player" class="col-lg-4 col-sm-4 col-xs-6"></div>
+      <div class="col-lg-4 col-sm-4 col-xs-6 ">
         <div ui-view="characters"></div>
         <div class="container" ng-show="game.onTurn">
           <div ui-view="basic-actions" ></div>
@@ -54,7 +54,7 @@ Joined Players
         </div>
         <div ui-view="type-selection"></div>
       </div>
-      <div ui-view="warlord" class="col-lg-4"></div>
+      <div ui-view="warlord" class="col-lg-4 col-sm-4 col-xs-6"></div>
     </div>
   </div>
 </div>
