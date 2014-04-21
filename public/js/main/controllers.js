@@ -77,7 +77,7 @@ define(["angular"], function (angular) {
             $scope.$state.go("lobby", {roomName: data.roomName});
           }
         });
-        
+
         socket.on("connect", function () {
           console.log("Connected to socket server");
           socket.emit('new client');
@@ -106,6 +106,10 @@ define(["angular"], function (angular) {
           }
         });
 
+        socket.on("game start", onGameStart);
+        function onGameStart (data) {
+          app.remoteRooms[data.roomName].status = "started";
+        }
         $scope.logout = function () {
           console.log("logging out: " + app.player.nickname);
           socket.emit("remove player", {nickname: app.player.nickname});

@@ -20,7 +20,12 @@
       <tr ng-repeat="room in app.remoteRooms">
         <td>{{room.roomName}}</td>
         <td>{{room.numberOfPlayers}}/{{room.roomCap}}</td>
-        <td class="pull-right"><button ng-click="joinRoom(room.roomName)" class="btn btn-info btn-sm">Join</button></td>
+        <td class="pull-right">
+          <button class="btn btn-info btn-sm" ng-disabled="room.status == 'started'" ng-click="joinRoom(room.roomName)" >
+            <span ng-hide="room.status == 'started'">Join</span>
+            <span ng-show="room.status == 'started'">Playing</span>
+          </button>
+        </td>
       </tr>
     </table>
     <span ng-show="roomFull">Room is full</span>

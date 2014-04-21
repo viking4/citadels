@@ -138,6 +138,7 @@ module.exports = function(io) {
       this.emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck.slice(i+1, game.characterDeck.deck.length), newRound: true, faceupCards: faceupCards});
       this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck.slice(i+1, game.characterDeck.deck.length), newRound: true, faceupCards: faceupCards});
 
+      this.broadcast.emit("game start", {roomName: data.roomName});
       games[data.roomName] = game;
     }
     function onSelectCharacter (data) {
