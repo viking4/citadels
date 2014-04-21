@@ -100,6 +100,16 @@ define(["angular", "btford.socket-io"], function (angular) {
             this.Smithy = true;
           }
         },
+        reOrder: function (king) {
+          for (var i = 0, ii = this.order.length, preKing = [], postKing = []; i < ii; i++) {
+            var name = this.order[i].nickname;
+            if (name == king || postKing.length > 0)
+              postKing.push(this.order[i]);
+            else
+              preKing.push(this.order[i]);
+          }
+          this.order = postKing.concat(preKing);
+        },
         charsToString: function  (chars) {
           for (var i = 0, ii = chars.length, str = ""; i < ii; i++) {
             str += chars[i].name + ", ";

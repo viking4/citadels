@@ -14,7 +14,8 @@
     <button class="btn btn-primary btn-block" type="submit" class="btn btn-primary btn-sm">Create</button>
     </form>
     <span ng-show="roomExisted">Room existed!</span><br>
-    <span ng-show="not2">Only support two-player game right now</span><br>
+    <span ng-show="not27">Only support 2-7 player game</span><br>
+    <span ng-show="needRoomName">Please enter a room name</span><br>
     <table class="table room-list" >
       <tr ng-repeat="room in app.remoteRooms">
         <td>{{room.roomName}}</td>

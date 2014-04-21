@@ -14,15 +14,15 @@ define(["angular"], function (angular) {
             game.bishopNickname = "";
             if (game.ownedDistricts["Haunted City"])
               game.ownedDistricts["Haunted City"].active = true;
+            game.reOrder(data.nickname);
+            game.faceupCards = data.faceupCards;
             game.log("New round has begun.");
           }
           if (data.nickname == game.nickname) {
             $scope.selectCharacter = true;
             $scope.discardTurn = false;
             $scope.characterCards = data.characterCards;
-            if ($scope.newRound && game.roomCap == 2) {
-              $scope.characterCards.pop();
-            }
+
             game.log(game.nickname + " (You) is choosing characters: " + game.charsToString($scope.characterCards));
           } else {
             game.log(data.nickname + " is choosing characters");
@@ -33,7 +33,7 @@ define(["angular"], function (angular) {
           game.log("You have chosen " + char.name);
           game.characters[char.rank] = char;
           chosenChar = $scope.characterCards.splice($scope.characterCards.indexOf(char), 1)[0];
-          if ($scope.newRound) {
+          if ($scope.newRound || game.order.length > 2 || $scope.characterCards.length == 1) {
             game.log("Remaining characters: " + game.charsToString($scope.characterCards));
             $scope.socket.emit("select character", {roomName: game.roomName, character: char, characterCards: $scope.characterCards});
             $scope.selectCharacter = false;

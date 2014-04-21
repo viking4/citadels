@@ -22,8 +22,10 @@ define(["angular"], function (angular) {
         $scope.createRoom = function () {
           if (app.remoteRooms[$scope.roomName]) {
             $scope.roomExisted = true;
-          } else if ($scope.roomCap != 2) {
-            $scope.not2 = true;
+          } else if ($scope.roomCap < 2 || $scope.roomCap > 7 || !angular.isNumber($scope.roomCap)) {
+            $scope.not27 = true;
+          } else if ($scope.roomName == "") {
+            $scope.needRoomName = true;
           } else {
             app.remoteRooms[$scope.roomName] = {
               roomName: $scope.roomName,

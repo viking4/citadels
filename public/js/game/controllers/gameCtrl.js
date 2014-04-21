@@ -11,11 +11,12 @@ define(["angular"], function (angular) {
 
         $scope.start = function () {
           var room = app.remoteRooms[roomName];
-          if (Object.keys(room.players).length != room.roomCap) {
-            game.log("Not enough players");
+          var cap = Object.keys(room.players).length;
+          if (cap > room.roomCap) {
+            game.log("Too many players");
           } else {
             game.log("You has started a game.");
-            socket.emit("new game", {roomName: roomName});
+            socket.emit("new game", {roomName: roomName, capacity: cap});
             $scope.gameStart = true;
           }
         };
@@ -33,13 +34,13 @@ define(["angular"], function (angular) {
 
           $scope.gameStart = true;
         });
+
         socket.on("play character", function (data) {
           if (data.character.name == "Bishop") {
             game.bishopNickname = data.nickname;
           }
           if (nickname == data.nickname) {
             var rank = data.character.rank;
-
             switch (game.characters[rank].status) {
               case "murdered":
                 game.log("You cannot do anything since you have been murdered");
@@ -62,7 +63,6 @@ define(["angular"], function (angular) {
                   game.log("You can build 3 districts this turn");
                   game.buildCap = 3;
                 }
-
             }
           } else {
             game.log(data.nickname + " is playing " + data.character.name);

@@ -117,8 +117,8 @@ module.exports = function(io) {
         var player = playerById(roster[i].id);
         order.push({id: player.id, nickname: player.nickname});
       }
-      var game = new Game(order);
-      game.setKing(hostPlayer.nickname);
+      var game = new Game(order, data.capacity);
+      game.setKing(order[0].nickname);
       game.districtDeck.shuffle();
       util.log("A player has started a game");
       for ( i = 0, ii = roster.length; i < ii; i++) {
@@ -129,16 +129,27 @@ module.exports = function(io) {
         roster[i].emit("new game", {nickname: hostPlayer.nickname, gold: 2, districtHand: cards, order: order});
       }
       game.characterDeck.shuffle();
-      this.emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck, newRound: true});
-      this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, newRound: true});
+      var faceupCards = [];
+      i = 0; ii = 6 - game.capacity;
+      for (; i < ii && ii < 3; i++) {
+        faceupCards.push(game.characterDeck.deck[i]);
+      }
+      game.facedownCard = game.characterDeck.deck[i];
+      this.emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck.slice(i+1, game.characterDeck.deck.length), newRound: true, faceupCards: faceupCards});
+      this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck.slice(i+1, game.characterDeck.deck.length), newRound: true, faceupCards: faceupCards});
+
       games[data.roomName] = game;
     }
     function onSelectCharacter (data) {
       var game = games[data.roomName];
       game.selectCharacter(this.id, data.character);
-      if (data.characterCards.length > 0) {
+      if (data.characterCards.length > 1) {
         this.emit("select character", {nickname: game.playerAfter(this.id)});
         this.broadcast.to(data.roomName).emit("select character", {nickname: game.playerAfter(this.id), characterCards: data.characterCards});
+      } else if (game.capacity == 7 && game.facedownCard) {
+        this.emit("select character", {nickname: game.playerAfter(this.id)});
+        this.broadcast.to(data.roomName).emit("select character", {nickname: game.playerAfter(this.id), characterCards: data.characterCards.concat(game.facedownCard)});
+        delete game["facedownCard"];
       } else {
         var nextPlayer = game.getNextPlayer();
         this.emit("play character", nextPlayer);
@@ -156,8 +167,14 @@ module.exports = function(io) {
         }
       } else if (!game.isEnded()){
         game.characterDeck.shuffle();
-        this.emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck, newRound: true});
-        this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck, newRound: true});
+        var faceupCards = [];
+        i = 0; ii = 6 - game.capacity;
+        for (; i < ii && ii < 3; i++) {
+          faceupCards.push(game.characterDeck.deck[i]);
+        }
+        game.facedownCard = game.characterDeck.deck[i];
+        this.emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck.slice(i+1, game.characterDeck.deck.length), newRound: true, faceupCards: faceupCards});
+        this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck.slice(i+1, game.characterDeck.deck.length), newRound: true, faceupCards: faceupCards});
       } else {
         // find Haunted City
         var roster = io.sockets.clients(data.roomName);

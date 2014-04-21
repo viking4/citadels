@@ -1,7 +1,7 @@
 var DistrictDeck = require("./deck").DistrictDeck,
   CharacterDeck = require("./deck").CharacterDeck;
 
-function Game(order) {
+function Game(order, cap) {
   this.districtDeck = new DistrictDeck();
   this.characterDeck = new CharacterDeck();
   this.players = [];
@@ -9,6 +9,8 @@ function Game(order) {
   this.ender = "";
   this.order = order;
   this.king = order[0].nickname;
+  this.capacity = cap;
+  this.facedownCard = {};
 }
 
 Game.prototype.setKing = function (king) {

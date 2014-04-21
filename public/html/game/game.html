@@ -35,10 +35,15 @@ Joined Players
 </div>
 
 <div ng-show="gameStart" class="container">
-  <div class="row">
-    <div class="col-md-2 col-md-offset-5 col-xs-2 col-xs-offset-5">
-      <button ng-click="endTurn()" ng-disabled="(!game.onTurn && !murdered) || game.disableEndTurn" ng-hide="gameEnd" class="btn btn-success"> End Turn</button>
-    </div>
+  <div class="row text-center">
+    |<span ng-repeat="player in game.order"> <span ng-class="{'text-danger': player.nickname == game.nickname}">{{player.nickname}}</span> |</span>
+  </div>
+  <div class="row text-center">
+    | Facedown |
+    <span ng-repeat="card in game.faceupCards"> {{card.name}} |</span>
+  </div>
+  <div class="row text-center">
+    <button ng-click="endTurn()" ng-disabled="(!game.onTurn && !murdered) || game.disableEndTurn" ng-hide="gameEnd" class="btn btn-success"> End Turn</button>
   </div>
 
   <div class="container">
