@@ -49,21 +49,23 @@ define(["angular"], function (angular) {
         };
         
         socket.on("join room", function (data) {
-          var room = app.remoteRooms[data.roomName];
+          var dRoom = data.room;
+          var room = app.remoteRooms[dRoom.roomName];
           if (room) {
-            console.log(data.player.nickname + " has joined " + data.roomName);
+            console.log(data.player.nickname + " has joined " + dRoom.roomName);
           } else {
-            app.remoteRooms[data.roomName] = {
-              roomName: data.roomName,
+            app.remoteRooms[dRoom.roomName] = {
+              roomName: dRoom.roomName,
               players: {},
-              roomCap: data.roomCap,
+              roomCap: dRoom.roomCap,
               getNumberOfPlayers: function () {
                 return Object.keys(this.players).length;
-              }
+              },
+              status: dRoom.status
             };
-            console.log(data.player.nickname + " has created " + data.roomName);
+            console.log(data.player.nickname + " has created " + dRoom.roomName);
           }
-          app.remoteRooms[data.roomName].players[data.player.nickname] = {
+          app.remoteRooms[dRoom.roomName].players[data.player.nickname] = {
             nickname: data.player.nickname,
             id: data.player.id,
             ownedDistricts: {},
@@ -74,7 +76,7 @@ define(["angular"], function (angular) {
             }
           };
           if (app.player.nickname == data.player.nickname) {
-            $scope.$state.go("lobby", {roomName: data.roomName});
+            $scope.$state.go("lobby", {roomName: dRoom.roomName});
           }
         });
 

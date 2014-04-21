@@ -75,10 +75,11 @@ module.exports = function(io) {
       for (var i = 0, ii = roomKeys.length; i < ii; i++) {
         if (roomKeys[i] != "") {
           var roomName = roomKeys[i].substring(1);
+          var room = rooms[roomName];
           var roster = io.sockets.clients(roomName);
           for (i = 0, ii = roster.length; i < ii; i++) {
             var player = playerById(roster[i].id);
-            this.emit("join room", {roomName: roomName, player: player, roomCap: rooms[roomName].roomCap});
+            this.emit("join room", {room: room, player: player});
           }
         }
       }
@@ -93,13 +94,18 @@ module.exports = function(io) {
     }
     function onJoinRoom (data) {
       if (data.roomCap) {
-        rooms[data.roomName] = {roomCap: data.roomCap};
+        rooms[data.roomName] = {
+          roomName: data.roomName,
+          roomCap: data.roomCap,
+          status: "waiting"
+        };
       }
+      var room = rooms[data.roomName];
       this.join(data.roomName);
       util.log("A player joins room: "+data.roomName);
       var joinPlayer = playerById(this.id);
-      this.emit("join room", {roomName: data.roomName, player: joinPlayer, roomCap: data.roomCap});
-      this.broadcast.emit("join room", {roomName: data.roomName, player: joinPlayer, roomCap: data.roomCap});
+      this.emit("join room", {room: room, player: joinPlayer});
+      this.broadcast.emit("join room", {room: room, player: joinPlayer});
     }
 
     function onLeaveRoom (data) {
@@ -139,6 +145,7 @@ module.exports = function(io) {
       this.broadcast.to(data.roomName).emit("select character", {nickname: game.king, characterCards: game.characterDeck.deck.slice(i+1, game.characterDeck.deck.length), newRound: true, faceupCards: faceupCards});
 
       this.broadcast.emit("game start", {roomName: data.roomName});
+      rooms[data.roomName].status = "started";
       games[data.roomName] = game;
     }
     function onSelectCharacter (data) {

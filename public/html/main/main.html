@@ -22,7 +22,7 @@
         <td>{{room.numberOfPlayers}}/{{room.roomCap}}</td>
         <td class="pull-right">
           <button class="btn btn-info btn-sm" ng-disabled="room.status == 'started'" ng-click="joinRoom(room.roomName)" >
-            <span ng-hide="room.status == 'started'">Join</span>
+            <span ng-show="room.status == 'waiting'">Join</span>
             <span ng-show="room.status == 'started'">Playing</span>
           </button>
         </td>
