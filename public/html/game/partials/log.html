@@ -2,6 +2,9 @@
   <textarea readonly ng-model="chatLog" style="width:45%; height: 250px; font-size: 10;margin-left:20px" autoscrollbottom></textarea>
   <textarea readonly ng-model="game.gameLog" style="width:45%; font-size: 12px;height:250px;" autoscrollbottom></textarea>
 </div>
+<div class="row span12">
+  <div ng-bind="game.gameLog" class="logbox" style="width:45%; font-size: 12px;height:250px;"></div>
+</div>
 <div>
   <form ng-submit="chat()">
     <input ng-init="chatLog = ''" ng-model="chatInput" type="text" class="form-control col-lg-3" placeholder="Chat here" style="margin-left:5px;width:46%">

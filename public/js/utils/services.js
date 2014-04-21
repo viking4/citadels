@@ -21,7 +21,7 @@ define(["angular", "btford.socket-io"], function (angular) {
       return {
         init: function (nickname, roomName, roomCap) {
           angular.extend(this, {
-            gameLog: "This is the game log.\n",
+            gameLog: "This is the game log. <h2>dk</h2>",
             roomName: roomName,
             nickname: nickname,
             characters: {},
@@ -44,7 +44,7 @@ define(["angular", "btford.socket-io"], function (angular) {
           })
         },
         log: function log(str) {
-          this.gameLog += $filter('date')(new Date(), 'h:mm:ss') + ": " + str + "\n";
+          this.gameLog += $filter('date')(new Date(), 'h:mm:ss') + " - " + str + "\n";
         },
         gainGold: function (gold) {
           this.gold += gold;

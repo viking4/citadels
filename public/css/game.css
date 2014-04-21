@@ -79,3 +79,9 @@ body {
 	color: #006363;
 	font-weight: bold;
 }
+
+.logbox {
+	overflow: auto;
+	width: fixed;
+	height: fixed;
+}
