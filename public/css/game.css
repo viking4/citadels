@@ -50,3 +50,32 @@ body {
 .room-list {
     width: 100%
 }
+
+.dist {
+	font-weight: bold;
+}
+
+.dist_noble {
+	color: #A68400;
+}
+
+.dist_religious {
+	color: #150873;
+}
+
+.dist_trade {
+	color: #008110;
+}
+
+.dist_military {
+	color: #9E0016;
+}
+
+.dist_special {
+	color: #730065;
+}
+
+.player_name {
+	color: #006363;
+	font-weight: bold;
+}

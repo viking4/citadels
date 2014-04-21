@@ -14,20 +14,18 @@
 <div class="container">
   <h3>Other Players</h3>
   <div ng-repeat="player in game.players">
-    Nickname: {{player.nickname}} <br>
-    Gold {{player.gold}} <br>
-    Number of District Cards {{player.numberOfDistrictCards}} cards <br>
+    <h4 class="player_name">{{player.nickname}}</h4>
+    Gold <strong>{{player.gold}}</strong> <br>
+    District Cards <strong>{{player.numberOfDistrictCards}}</strong> <br>
     Owned Districts
     <table class="table" style="width: auto">
       <tr>
         <th>Name </th>
-        <th>Type </th>
         <th>Cost </th>
         <th ng-show="game.onTurn && game.Warlord">Destroy</th>
       </tr>
       <tr ng-repeat="card in player.ownedDistricts" popover="{{card.description}}" popover-trigger="click">
-        <td>{{card.name}} </td>
-        <td>{{card.type}} </td>
+        <td class="dist dist_{{card.type | lowercase}}">{{card.name}} </td>
         <td>{{card.cost}} </td>
         <td>
           <button ng-show="game.onTurn && game.Warlord &&

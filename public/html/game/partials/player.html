@@ -3,12 +3,10 @@
   <table class="table" style="width: auto">
     <tr>
       <th>Name </th>
-      <th>Type </th>
       <th>Cost </th>
     </tr>
     <tr ng-repeat="card in game.ownedDistricts" popover="{{card.description}}" popover-trigger="click">
-      <td>{{card.name}} </td>
-      <td>{{card.type}} </td>
+      <td class="dist dist_{{card.type | lowercase}}">{{card.name}} </td>
       <td>{{card.cost}} </td>
       <td>
         <button ng-show="game.Laboratory && card.name == 'Laboratory'" ng-click="toggleLab()" class="btn btn-primary btn-sm"> Toggle </button>
@@ -16,17 +14,15 @@
       </td>
     </tr>
   </table>
-  <h3>Gold {{game.gold}}</h3>
+  <h3>Gold <strong>{{game.gold}}</strong></h3>
   <h3>District Hand</h3>
   <table class="table" style="width: auto">
     <tr>
       <th>Name </th>
-      <th>Type </th>
       <th>Cost </th>
     </tr>
     <tr ng-repeat="card in game.districtHand track by $index" popover="{{card.description}}" popover-trigger="click">
-      <td>{{card.name}} </td>
-      <td>{{card.type}} </td>
+      <td class="dist dist_{{card.type | lowercase}}">{{card.name}} </td>
       <td>{{card.cost}} </td>
       <td>
         <button ng-hide="card.cost > game.gold || game.buildCap == 0 || !game.buildTurn || game.ownedDistricts[card.name]" ng-click="build(card);" class="btn btn-primary btn-sm"> Build </button>
