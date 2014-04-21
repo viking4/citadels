@@ -12,7 +12,7 @@
       <th>Type </th>
       <th>Cost </th>
     </tr>
-    <tr ng-repeat="card in drawCards" >
+    <tr ng-repeat="card in drawCards" popover="{{card.description}}" popover-trigger="click">
       <td>{{card.name}} </td>
       <td>{{card.type}} </td>
       <td>{{card.cost}} </td>
