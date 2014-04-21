@@ -1,7 +1,7 @@
-define(["angular", "btford.socket-io"], function (angular) {
+define(["angular", "btford.socket-io", "angular-sanitize"], function (angular) {
   "use strict";
 
-  return angular.module("utils.services", ["btford.socket-io"])
+  return angular.module("utils.services", ["btford.socket-io", "ngSanitize"])
     .factory("socket", ["socketFactory", function (socketFactory) {
       return socketFactory({
         ioSocket: io.connect("http://localhost", {port: 5000, transports: ["websocket"]})
@@ -44,6 +44,8 @@ define(["angular", "btford.socket-io"], function (angular) {
           })
         },
         log: function log(str) {
+          //alert(this.gameLog);
+          //alert(typeof this.gameLog);
           this.gameLog += $filter('date')(new Date(), 'h:mm:ss') + " - " + str + "\n";
         },
         gainGold: function (gold) {

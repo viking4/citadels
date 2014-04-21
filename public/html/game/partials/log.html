@@ -3,7 +3,7 @@
   <textarea readonly ng-model="game.gameLog" style="width:45%; font-size: 12px;height:250px;" autoscrollbottom></textarea>
 </div>
 <div class="row span12">
-  <div ng-bind="game.gameLog" class="logbox" style="width:45%; font-size: 12px;height:250px;"></div>
+  <div ng-bind-html="game.gameLog" class="logbox" style="width:45%; font-size: 12px;height:250px;"></div>
 </div>
 <div>
   <form ng-submit="chat()">

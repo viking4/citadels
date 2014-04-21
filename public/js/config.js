@@ -13,6 +13,9 @@ require.config({
     },
     "ui-bootstrap": {
       deps: ["angular"]
+    },
+    "angular-sanitize": {
+      deps: ["angular"]
     }
   },
   paths: {
@@ -20,7 +23,8 @@ require.config({
     "btford.socket-io": "lib/socket",
     "socket.io": "/socket.io/socket.io",
     "ui-router": "../bower_components/angular-ui-router/release/angular-ui-router",
-    "ui-bootstrap": "../bower_components/angular-bootstrap/ui-bootstrap-tpls"
+    "ui-bootstrap": "../bower_components/angular-bootstrap/ui-bootstrap-tpls",
+    "angular-sanitize": "../bower_components/angular-sanitize/angular-sanitize"
   },
   modules: [
     {
