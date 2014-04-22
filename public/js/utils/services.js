@@ -21,7 +21,7 @@ define(["angular", "btford.socket-io", "angular-sanitize"], function (angular) {
       return {
         init: function (nickname, roomName, roomCap) {
           angular.extend(this, {
-            gameLog: "This is the game log. <h2>dk</h2>",
+            gameLog: "This is the game log.<br>",
             roomName: roomName,
             nickname: nickname,
             characters: {},
@@ -44,9 +44,18 @@ define(["angular", "btford.socket-io", "angular-sanitize"], function (angular) {
           })
         },
         log: function log(str) {
-          //alert(this.gameLog);
-          //alert(typeof this.gameLog);
-          this.gameLog += $filter('date')(new Date(), 'h:mm:ss') + " - " + str + "\n";
+          var toStrong = [];
+          for (var player in this.players) {
+            toStrong.push(player);
+          }
+          toStrong.push(this.nickname);
+          toStrong.push("You");
+
+          toStrong.forEach(function(name) {
+            str = str.replace(new RegExp(name, 'g'), "<strong>" + name + "</strong>");
+          });
+
+          this.gameLog += $filter("date")(new Date(), "h:mm:ss") + " - " + str + "<br>";
         },
         gainGold: function (gold) {
           this.gold += gold;
